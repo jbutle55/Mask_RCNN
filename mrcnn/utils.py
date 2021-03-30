@@ -101,7 +101,7 @@ def compute_overlaps_masks(masks1, masks2):
     """Computes IoU overlaps between two sets of masks.
     masks1, masks2: [Height, Width, instances]
     """
-    
+
     # If either set of masks is empty return empty result
     if masks1.shape[-1] == 0 or masks2.shape[-1] == 0:
         return np.zeros((masks1.shape[-1], masks2.shape[-1]))
@@ -685,6 +685,7 @@ def compute_matches(gt_boxes, gt_class_ids, gt_masks,
     match_count = 0
     pred_match = -1 * np.ones([pred_boxes.shape[0]])
     gt_match = -1 * np.ones([gt_boxes.shape[0]])
+    tn_match = -1 * np.ones([gt_boxes.shape[0]])
     for i in range(len(pred_boxes)):
         # Find best matching ground truth box
         # 1. Sort matches by score
@@ -731,7 +732,7 @@ def compute_ap(gt_boxes, gt_class_ids, gt_masks,
 
     # Compute precision and recall at each prediction box step
     precisions = np.cumsum(pred_match > -1) / (np.arange(len(pred_match)) + 1)
-    recalls = np.cumsum(pred_match > -1).astype(np.float32) / len(gt_match)
+    recalls = np.cumsum(pred_match > -1).astype(np.float32) / len(gt_match)  # True Positives
 
     # Pad with start and end values to simplify the math
     precisions = np.concatenate([[0], precisions, [0]])
@@ -757,14 +758,14 @@ def compute_ap_range(gt_box, gt_class_id, gt_mask,
     """Compute AP over a range or IoU thresholds. Default range is 0.5-0.95."""
     # Default is 0.5 to 0.95 with increments of 0.05
     iou_thresholds = iou_thresholds or np.arange(0.5, 1.0, 0.05)
-    
+
     # Compute AP over range of IoU thresholds
     AP = []
     for iou_threshold in iou_thresholds:
-        ap, precisions, recalls, overlaps =\
+        ap, precisions, recalls, overlaps = \
             compute_ap(gt_box, gt_class_id, gt_mask,
-                        pred_box, pred_class_id, pred_score, pred_mask,
-                        iou_threshold=iou_threshold)
+                       pred_box, pred_class_id, pred_score, pred_mask,
+                       iou_threshold=iou_threshold)
         if verbose:
             print("AP @{:.2f}:\t {:.3f}".format(iou_threshold, ap))
         AP.append(ap)
@@ -773,6 +774,79 @@ def compute_ap_range(gt_box, gt_class_id, gt_mask,
         print("AP @{:.2f}-{:.2f}:\t {:.3f}".format(
             iou_thresholds[0], iou_thresholds[-1], AP))
     return AP
+
+
+def compute_roc_curve():
+    """
+
+    """
+
+    return
+
+
+def compute_tpr_fpr(gt_boxes, gt_class_ids, gt_masks,
+               pred_boxes, pred_class_ids, pred_scores, pred_masks,
+               iou_threshold=0.5):
+    """
+    Compute the True Positive and  False Positive Rates
+
+    Returns:
+    mAP: Mean
+    Average
+    Precision
+    precisions: List
+    of
+    precisions
+    at
+    different
+
+    class score thresholds.
+
+    recalls: List
+    of
+    recall
+    values
+    at
+    different
+
+    class score thresholds.
+
+    overlaps: [pred_boxes, gt_boxes]
+    IoU
+    overlaps.
+    """
+
+    tn, fp = [], []
+
+    # Only want to compute tpr and fpr for a single class at a time
+
+
+    # Get matches and overlaps
+    gt_match, pred_match, overlaps = compute_matches(
+        gt_boxes, gt_class_ids, gt_masks,
+        pred_boxes, pred_class_ids, pred_scores, pred_masks,
+        iou_threshold)
+
+    # Compute precision and recall at each prediction box step
+    precisions = np.cumsum(pred_match > -1) / (np.arange(len(pred_match)) + 1)
+    recalls = np.cumsum(pred_match > -1).astype(np.float32) / len(gt_match)  # True Positives
+
+    # Pad with start and end values to simplify the math
+    precisions = np.concatenate([[0], precisions, [0]])
+    recalls = np.concatenate([[0], recalls, [1]])
+
+    # Ensure precision values decrease but don't increase. This way, the
+    # precision value at each recall threshold is the maximum it can be
+    # for all following recall thresholds, as specified by the VOC paper.
+    for i in range(len(precisions) - 2, -1, -1):
+        precisions[i] = np.maximum(precisions[i], precisions[i + 1])
+
+    # Compute mean AP over recall range
+    indices = np.where(recalls[:-1] != recalls[1:])[0] + 1
+    mAP = np.sum((recalls[indices] - recalls[indices - 1]) *
+                 precisions[indices])
+
+    return tn, fp
 
 
 def compute_recall(pred_boxes, gt_boxes, iou):
