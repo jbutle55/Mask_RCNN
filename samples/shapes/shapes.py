@@ -253,19 +253,19 @@ def main():
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
                 epochs=1,
-                layers='heads')
+                layers='all')
 
     # Fine tune all layers
     # Passing layers="all" trains all layers. You can also
     # pass a regular expression to select which layers to
     # train by name pattern.
-    model.train(dataset_train, dataset_val,
-                learning_rate=config.LEARNING_RATE / 10,
-                epochs=2,
-                layers="all")
+    #model.train(dataset_train, dataset_val,
+    #            learning_rate=config.LEARNING_RATE / 10,
+    #            epochs=2,
+    #            layers="all")
 
-    # model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
-    # model.keras_model.save_weights(model_path)
+    model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes_tf")
+    model.keras_model.save_weights(model_path, save_format='tf')
 
     class InferenceConfig(ShapesConfig):
         GPU_COUNT = 1
@@ -280,8 +280,8 @@ def main():
 
     # Get path to saved weights
     # Either set a specific path or find last trained weights
-    # model_path = os.path.join(ROOT_DIR, ".h5 file name here")
-    model_path = model.find_last()
+    #model_path = os.path.join(ROOT_DIR, "mask_rcnn_shapes")
+    # model_path = model.find_last()
 
     # Load trained weights
     print("Loading weights from ", model_path)
@@ -292,7 +292,7 @@ def main():
     fp_rates = []
 
     # Compute ROCs for above range of thresholds
-    # Compute 1 for each class vs. the other classes
+    # Compute one for each class vs. the other classes
     for index, conf in confidence_thresholds:
 
         tp_at_conf = 0
@@ -319,11 +319,17 @@ def main():
             results = model.detect([image], verbose=0)
             r = results[0]
 
+            # Detect returns:
+            # "rois" []
+            # "class_ids" [N]
+            # "scores" [N]
+
+            classes = list(set(r['class_ids']))  # All unique class ids
+
             # Need TPR and FPR rates for each class versus the other classes
 
-            # Compute TPR (recall)
-            _, _, tpr, _ = utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
-                                            r["rois"], r["class_ids"], r["scores"], r['masks'])
+            _, _, tpr, _ = utils.compute_ap_indiv_class(gt_bbox, gt_class_id, gt_mask,
+                                                        r["rois"], r["class_ids"], r["scores"], r['masks'])
 
             fpr = utils.compute_fpr()
 
