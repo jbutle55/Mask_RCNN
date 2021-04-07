@@ -905,6 +905,10 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             pred_boxes, pred_class_ids, pred_scores, pred_masks, ind_class,
             iou_threshold)
 
+        if (fp_count + tn_count) == 0:
+            fpr = 0
+            continue
+
         fpr = fp_count / (fp_count + tn_count)
 
         total_fpr[ind_class] = fpr
