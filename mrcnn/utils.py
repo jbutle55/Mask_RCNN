@@ -783,7 +783,10 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
         precisions = np.concatenate([[0], precisions, [0]])
         recalls = np.concatenate([[0], recalls, [1]])
 
-        total_recalls[ind_class] = recalls
+        print(f'ind_class: {ind_class}')
+        print(f'recalls: {recalls}')
+
+        total_recalls[ind_class] = recalls[-2]
 
     return total_recalls
 
@@ -878,7 +881,20 @@ def compute_ap_range(gt_box, gt_class_id, gt_mask,
 def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
     """
 
+    Args:
+        tp_rates (dict):
+        fp_rates (dict):
+        confidence_thresholds:
+
+    Returns:
+
     """
+
+    for k, v in tp_rates.items():
+        print(f'{k} - {v}')
+
+    for k, v in fp_rates.items():
+        print(f'{k} - {v}')
 
     plt.plot(fp_rates, tp_rates)
     plt.xlabel('False Positive Rates')
@@ -892,6 +908,23 @@ def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
 def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
                                 pred_boxes, pred_class_ids, pred_scores, pred_masks,
                                 iou_threshold=0.5, score_threshold=0.0):
+    """
+
+    Args:
+        gt_boxes:
+        gt_class_ids:
+        gt_masks:
+        pred_boxes:
+        pred_class_ids:
+        pred_scores:
+        pred_masks:
+        iou_threshold:
+        score_threshold:
+
+    Returns:
+        total_fpr [dict]: A dictionary of FP Rates for each individual class. Each class is a key.
+
+    """
     total_fpr = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
 
