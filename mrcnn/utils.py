@@ -882,19 +882,14 @@ def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
     """
 
     Args:
-        tp_rates (dict):
-        fp_rates (dict):
+        tp_rates (list): A list for each threshold level of dictionaries for each class and their TP rate
+        fp_rates (list): A list for each threshold level of dictionaries for each class and their FP rate
         confidence_thresholds:
 
     Returns:
 
     """
 
-    for k, v in tp_rates.items():
-        print(f'{k} - {v}')
-
-    for k, v in fp_rates.items():
-        print(f'{k} - {v}')
 
     plt.plot(fp_rates, tp_rates)
     plt.xlabel('False Positive Rates')
@@ -927,6 +922,7 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     """
     total_fpr = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
+    print(f'All Classes: {classes}')
 
     # Find True Negative or each class
     for ind_class in classes:
@@ -938,9 +934,15 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             pred_boxes, pred_class_ids, pred_scores, pred_masks, ind_class,
             iou_threshold)
 
+        print(f'FP Count: {fp_count}')
+        print(f'TN Count: {tn_count}')
+
         if (fp_count + tn_count) == 0:
             fpr = 0
             continue
+
+        print(f'FPR Class: {ind_class}')
+        print()
 
         fpr = fp_count / (fp_count + tn_count)
 
@@ -1029,10 +1031,6 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     print(f'IDs to remove: {ids_to_remove}')
     pred_class_ids_shortened = np.delete(pred_class_ids, ids_to_remove)
     tn_count = len(pred_class_ids_shortened)
-
-    print('DEBUG PRINT')
-    print(f'TN Count - {tn_count}')
-    print(f'FP Count - {fp_count}')
 
     return tn_count, fp_count
 
