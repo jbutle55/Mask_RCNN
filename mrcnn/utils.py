@@ -783,9 +783,6 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
         precisions = np.concatenate([[0], precisions, [0]])
         recalls = np.concatenate([[0], recalls, [1]])
 
-        print(f'ind_class: {ind_class}')
-        print(f'recalls: {recalls}')
-
         total_recalls[ind_class] = recalls[-2]
 
     return total_recalls
@@ -946,6 +943,8 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
 
         fpr = fp_count / (fp_count + tn_count)
 
+        print(f'FPR: {fpr}')
+
         total_fpr[ind_class] = fpr
 
     return total_fpr
@@ -979,7 +978,6 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     # If there's a match, remove from both pred and GT lists
     fp_count = 0
 
-    print(f'Starting Pred Length - {len(pred_class_ids)}')
     ids_to_remove = []
 
     match_count = 0
@@ -1028,7 +1026,6 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
                     break
 
     # Now have list of preds that are  TN
-    print(f'IDs to remove: {ids_to_remove}')
     pred_class_ids_shortened = np.delete(pred_class_ids, ids_to_remove)
     tn_count = len(pred_class_ids_shortened)
 
