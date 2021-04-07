@@ -969,8 +969,7 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             # True Positive
             if pred_class_ids[i] == gt_class_ids[j]:
                 # Remove True Positives from list
-                pred_class_ids.pop(i)
-
+                pred_class_ids = np.delete(pred_class_ids, i)
                 #match_count += 1
                 #gt_match[j] = i
                 #pred_match[i] = j
@@ -979,12 +978,12 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             elif pred_class_ids[i] != gt_class_ids[j]:
                 if gt_class_ids[j] == filter_class:
                     # Remove False Negatives
-                    pred_class_ids.pop(i)
+                    pred_class_ids = np.delete(pred_class_ids, i)
                     break
                 else:
                     fp_count += 1
                     # Remove False Positives
-                    pred_class_ids.pop(i)
+                    pred_class_ids = np.delete(pred_class_ids, i)
                     break
 
     # Now have list of preds that are  TN
