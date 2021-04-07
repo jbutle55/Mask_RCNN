@@ -890,7 +890,7 @@ def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
 
 
 def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
-                                pred_boxes, pred_class_ids, pred_scores, pred_masks, filter_class,
+                                pred_boxes, pred_class_ids, pred_scores, pred_masks,
                                 iou_threshold=0.5, score_threshold=0.0):
     total_fpr = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
