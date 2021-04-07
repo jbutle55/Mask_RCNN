@@ -879,19 +879,24 @@ def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
     """
 
     Args:
-        tp_rates (list): A list for each threshold level of dictionaries for each class and their TP rate
-        fp_rates (list): A list for each threshold level of dictionaries for each class and their FP rate
+        tp_rates (dict): A dictionary for each class and their TP rate
+        fp_rates (dict): A dictionary for each class and their FP rate
         confidence_thresholds:
 
     Returns:
 
     """
 
+    keys = list(tp_rates.keys())
+    size = len(keys)
 
-    plt.plot(fp_rates, tp_rates)
-    plt.xlabel('False Positive Rates')
-    plt.ylabel('True Positive Rates')
-    plt.title('ROC Curve')
+    for i in range(len(keys)):
+        plt.subplot(size, 1, i)
+        plt.plot(fp_rates[keys[i]], tp_rates[keys[i]])
+        plt.xlabel('False Positive Rates')
+        plt.ylabel('True Positive Rates')
+        plt.title(f'ROC Curve - {keys[i]}')
+
     plt.show()
 
     return
@@ -931,19 +936,11 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             pred_boxes, pred_class_ids, pred_scores, pred_masks, ind_class,
             iou_threshold)
 
-        print(f'FP Count: {fp_count}')
-        print(f'TN Count: {tn_count}')
-
         if (fp_count + tn_count) == 0:
             fpr = 0
             continue
 
-        print(f'FPR Class: {ind_class}')
-        print()
-
         fpr = fp_count / (fp_count + tn_count)
-
-        print(f'FPR: {fpr}')
 
         total_fpr[ind_class] = fpr
 
