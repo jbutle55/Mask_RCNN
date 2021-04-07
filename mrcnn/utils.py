@@ -941,7 +941,7 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     fp_count = 0
 
     print(f'Starting Pred Length - {len(pred_class_ids)}')
-    pred_class_ids_shortened = pred_class_ids
+    ids_to_remove = []
 
     match_count = 0
     pred_match = -1 * np.ones([pred_boxes.shape[0]])
@@ -971,7 +971,7 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             # True Positive
             if pred_class_ids[i] == gt_class_ids[j]:
                 # Remove True Positives from list
-                pred_class_ids_shortened = np.delete(pred_class_ids_shortened, i)
+                ids_to_remove.append(i)
                 #match_count += 1
                 #gt_match[j] = i
                 #pred_match[i] = j
@@ -980,15 +980,17 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             elif pred_class_ids[i] != gt_class_ids[j]:
                 if gt_class_ids[j] == filter_class:
                     # Remove False Negatives
-                    pred_class_ids_shortened = np.delete(pred_class_ids_shortened, i)
+                    ids_to_remove.append(i)
                     break
                 else:
                     fp_count += 1
                     # Remove False Positives
-                    pred_class_ids_shortened = np.delete(pred_class_ids_shortened, i)
+                    ids_to_remove.append(i)
                     break
 
     # Now have list of preds that are  TN
+    print(f'IDs to remove: {ids_to_remove}')
+    pred_class_ids_shortened = np.delete(pred_class_ids, ids_to_remove)
     tn_count = len(pred_class_ids_shortened)
 
     print('DEBUG PRINT')
