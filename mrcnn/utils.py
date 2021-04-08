@@ -901,7 +901,7 @@ def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
         plt.xlim(0, 1)
         plt.ylim(0, 1)
 
-        plt.plot(fp_s, tp_s, '-')
+        plt.plot(fp_s, tp_s, '.')
         plt.xlabel('False Positive Rates')
         plt.ylabel('True Positive Rates')
         plt.title(f'ROC Curve - {keys[i]}')
