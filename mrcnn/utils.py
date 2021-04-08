@@ -912,7 +912,7 @@ def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
 
 
 def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
-                                pred_boxes, pred_class_ids, pred_scores, pred_masks,
+                                pred_boxes, pred_class_ids, pred_scores, pred_masks, complete_classes,
                                 iou_threshold=0.5, score_threshold=0.0):
     """
 
@@ -935,7 +935,7 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     classes = list(set(gt_class_ids))  # All unique class ids from gts
 
     # Find True Negative or each class
-    for ind_class in classes:
+    for ind_class in complete_classes:
 
         # Get matches and overlaps
         # gt_match has index of matched pred box
