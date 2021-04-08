@@ -879,20 +879,29 @@ def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
     """
 
     Args:
-        tp_rates (dict): A dictionary for each class and their TP rate
-        fp_rates (dict): A dictionary for each class and their FP rate
+        tp_rates (list): A list of dictionaries for each class and their TP rate
+        fp_rates (list): A list of dictionaries for each class and their FP rate
         confidence_thresholds:
 
     Returns:
 
     """
 
-    keys = list(tp_rates.keys())
+    keys = list(tp_rates[0].keys())
     size = len(keys)
 
     for i in range(len(keys)):
-        plt.subplot(size, 1, i)
-        plt.plot(fp_rates[keys[i]], tp_rates[keys[i]])
+        tp_s = []
+        fp_s = []
+        for t_conf, f_conf in zip(tp_rates, fp_rates):
+            tp_s.append(t_conf[keys[i]])
+            fp_s.append(f_conf[keys[i]])
+
+        plt.subplot(size, 1, i + 1)
+        plt.xlim(0, 1)
+        plt.ylim(0, 1)
+
+        plt.plot(fp_s, tp_s, '-')
         plt.xlabel('False Positive Rates')
         plt.ylabel('True Positive Rates')
         plt.title(f'ROC Curve - {keys[i]}')
@@ -924,7 +933,6 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     """
     total_fpr = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
-    print(f'All Classes: {classes}')
 
     # Find True Negative or each class
     for ind_class in classes:
