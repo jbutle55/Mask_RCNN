@@ -784,6 +784,8 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
         precisions = np.concatenate([[0], precisions, [0]])
         recalls = np.concatenate([[0], recalls, [1]])
 
+        print(f'Recalls - {recalls}')
+
         total_recalls[ind_class] = recalls[-2]
         print(f'TPR - {recalls[-2]}')
 
