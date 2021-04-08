@@ -754,7 +754,7 @@ def compute_ap(gt_boxes, gt_class_ids, gt_masks,
 
 
 def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
-               pred_boxes, pred_class_ids, pred_scores, pred_masks,
+               pred_boxes, pred_class_ids, pred_scores, pred_masks, complete_classes,
                iou_threshold=0.5):
     """Compute Average Precision at a set IoU threshold (default 0.5).
 
@@ -767,7 +767,7 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     total_recalls = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
 
-    for ind_class in classes:
+    for ind_class in complete_classes:
 
         # Get matches and overlaps
         gt_match, pred_match, overlaps = compute_matches_indiv_class(
@@ -934,8 +934,11 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     total_fpr = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
 
+    print('Computing FPR...')
+
     # Find True Negative or each class
     for ind_class in complete_classes:
+        print(f'For class {ind_class}')
 
         # Get matches and overlaps
         # gt_match has index of matched pred box
@@ -944,11 +947,15 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             pred_boxes, pred_class_ids, pred_scores, pred_masks, ind_class,
             iou_threshold)
 
+        print(f'TN - {tn_count}, FP - {fp_count}')
+
         if (fp_count + tn_count) == 0:
             fpr = 0
             continue
 
         fpr = fp_count / (fp_count + tn_count)
+
+        print(f'FPR for class: {fpr}')
 
         total_fpr[ind_class] = fpr
 
