@@ -767,8 +767,9 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     total_recalls = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
 
+    print(f'TPR Calcs...')
     for ind_class in complete_classes:
-
+        print(f'For Class {ind_class}...')
         # Get matches and overlaps
         gt_match, pred_match, overlaps = compute_matches_indiv_class(
             gt_boxes, gt_class_ids, gt_masks,
@@ -784,6 +785,7 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
         recalls = np.concatenate([[0], recalls, [1]])
 
         total_recalls[ind_class] = recalls[-2]
+        print(f'TPR - {recalls[-2]}')
 
     return total_recalls
 
