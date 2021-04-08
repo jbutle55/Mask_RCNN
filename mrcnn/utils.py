@@ -776,6 +776,9 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             pred_boxes, pred_class_ids, pred_scores, pred_masks, ind_class,
             iou_threshold)
 
+        print(f'gt_match - {gt_match}, length: {len(gt_match)}')
+        print(f'pred_match - {pred_match}')
+
         # Compute precision and recall at each prediction box step
         precisions = np.cumsum(pred_match > -1) / (np.arange(len(pred_match)) + 1)
         recalls = np.cumsum(pred_match > -1).astype(np.float32) / len(gt_match)  # True Positives
@@ -955,9 +958,8 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
 
         if (fp_count + tn_count) == 0:
             fpr = 0
-            continue
-
-        fpr = fp_count / (fp_count + tn_count)
+        else:
+            fpr = fp_count / (fp_count + tn_count)
 
         print(f'FPR for class: {fpr}')
 
