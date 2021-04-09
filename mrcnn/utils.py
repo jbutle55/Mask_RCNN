@@ -1035,13 +1035,21 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             # Do we have a match?
             # True Positive
             if pred_class_ids[i] == gt_class_ids[j]:
+                # TP of individual class
                 print(f'Pred: {pred_class_ids[i]}, GT: {gt_class_ids[j]}')
-                # Remove True Positives from list
-                ids_to_remove.append(i)
-                match_count += 1
-                gt_match[j] = i
-                pred_match[i] = j
-                continue
+                if gt_class_ids[j] == filter_class:
+                    print('True Pos')
+                    # Remove True Positives from list
+                    print('')
+                    ids_to_remove.append(i)
+                    match_count += 1
+                    gt_match[j] = i
+                    pred_match[i] = j
+                    continue
+                else:
+                    # Else True Negative
+                    print('True Negative')
+                    continue
             # False Positive
             elif pred_class_ids[i] != gt_class_ids[j]:
                 if gt_class_ids[j] == filter_class:
