@@ -793,8 +793,11 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
 
         print(f'Recalls - {recalls}')
 
-        total_recalls[ind_class] = recalls[-2]
-        print(f'TPR - {recalls[-2]}')
+        if np.isnan(recalls[-2]):
+            total_recalls[ind_class] = 0
+        else:
+            total_recalls[ind_class] = recalls[-2]
+        print(f'TPR - {total_recalls[ind_class]}')
 
     return total_recalls
 
@@ -827,8 +830,6 @@ def compute_matches_indiv_class(gt_boxes, gt_class_ids, gt_masks,
 
     # Compute IoU overlaps [pred_masks, gt_masks]
     overlaps = compute_overlaps_masks(pred_masks, gt_masks)
-
-    #TODO Remove non-class GTs from gt_boxes
 
     # Loop through predictions and find matching ground truth boxes
     match_count = 0
@@ -953,6 +954,10 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     for ind_class in complete_classes:
         print(f'For class {ind_class}')
 
+        num_non_class_gts = (gt_class_ids != ind_class).sum()
+
+        print(f'Number of non-class: {num_non_class_gts}')
+
         # Get matches and overlaps
         # gt_match has index of matched pred box
         tn_count, fp_count = compute_tn_fp_indiv_class(
@@ -1001,7 +1006,6 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     # Loop through predictions and find matching ground truth boxes
     # If there's a match, remove from both pred and GT lists
     fp_count = 0
-
     ids_to_remove = []
 
     match_count = 0
@@ -1031,23 +1035,27 @@ def compute_tn_fp_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             # Do we have a match?
             # True Positive
             if pred_class_ids[i] == gt_class_ids[j]:
+                print(f'Pred: {pred_class_ids[i]}, GT: {gt_class_ids[j]}')
                 # Remove True Positives from list
                 ids_to_remove.append(i)
-                #match_count += 1
-                #gt_match[j] = i
-                #pred_match[i] = j
-                break
+                match_count += 1
+                gt_match[j] = i
+                pred_match[i] = j
+                continue
             # False Positive
             elif pred_class_ids[i] != gt_class_ids[j]:
                 if gt_class_ids[j] == filter_class:
                     # Remove False Negatives
                     ids_to_remove.append(i)
-                    break
+                    continue
                 else:
                     fp_count += 1
                     # Remove False Positives
                     ids_to_remove.append(i)
-                    break
+                    continue
+
+    print(f'Pred_Class_ids: {pred_class_ids}')
+    print(f'IDs to Remove: {ids_to_remove}')
 
     # Now have list of preds that are  TN
     pred_class_ids_shortened = np.delete(pred_class_ids, ids_to_remove)
