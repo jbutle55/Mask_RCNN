@@ -781,7 +781,11 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
 
         # Compute precision and recall at each prediction box step
         precisions = np.cumsum(pred_match > -1) / (np.arange(len(pred_match)) + 1)
-        recalls = np.cumsum(pred_match > -1).astype(np.float32) / len(gt_match)  # True Positives
+        #recalls = np.cumsum(pred_match > -1).astype(np.float32) / len(gt_match)  # True Positives
+        # Divide by number of specific class rather than len of gt_match
+        num_class_gts = gt_class_ids.count(ind_class)
+        print(f'Num of class {ind_class}: {num_class_gts}')
+        recalls = np.cumsum(pred_match > -1).astype(np.float32) / num_class_gts  # True Positives
 
         # Pad with start and end values to simplify the math
         precisions = np.concatenate([[0], precisions, [0]])
@@ -823,6 +827,8 @@ def compute_matches_indiv_class(gt_boxes, gt_class_ids, gt_masks,
 
     # Compute IoU overlaps [pred_masks, gt_masks]
     overlaps = compute_overlaps_masks(pred_masks, gt_masks)
+
+    #TODO Remove non-class GTs from gt_boxes
 
     # Loop through predictions and find matching ground truth boxes
     match_count = 0
