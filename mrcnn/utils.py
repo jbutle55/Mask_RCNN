@@ -767,37 +767,37 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     total_recalls = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
 
-    print(f'TPR Calcs...')
+    # print(f'TPR Calcs...')
     for ind_class in complete_classes:
-        print(f'For Class {ind_class}...')
+        # print(f'For Class {ind_class}...')
         # Get matches and overlaps
         gt_match, pred_match, overlaps = compute_matches_indiv_class(
             gt_boxes, gt_class_ids, gt_masks,
             pred_boxes, pred_class_ids, pred_scores, pred_masks, ind_class,
             iou_threshold)
 
-        print(f'gt_match - {gt_match}, length: {len(gt_match)}')
-        print(f'pred_match - {pred_match}')
+        # print(f'gt_match - {gt_match}, length: {len(gt_match)}')
+        # print(f'pred_match - {pred_match}')
 
         # Compute precision and recall at each prediction box step
         precisions = np.cumsum(pred_match > -1) / (np.arange(len(pred_match)) + 1)
         #recalls = np.cumsum(pred_match > -1).astype(np.float32) / len(gt_match)  # True Positives
         # Divide by number of specific class rather than len of gt_match
         num_class_gts = (gt_class_ids == ind_class).sum()
-        print(f'Num of class {ind_class}: {num_class_gts}')
+        # print(f'Num of class {ind_class}: {num_class_gts}')
         recalls = np.cumsum(pred_match > -1).astype(np.float32) / num_class_gts  # True Positives
 
         # Pad with start and end values to simplify the math
         precisions = np.concatenate([[0], precisions, [0]])
         recalls = np.concatenate([[0], recalls, [1]])
 
-        print(f'Recalls - {recalls}')
+        # print(f'Recalls - {recalls}')
 
         if np.isnan(recalls[-2]):
             total_recalls[ind_class] = 0
         else:
             total_recalls[ind_class] = recalls[-2]
-        print(f'TPR - {total_recalls[ind_class]}')
+        # print(f'TPR - {total_recalls[ind_class]}')
 
     return total_recalls
 
@@ -948,15 +948,15 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
     total_fpr = {}
     classes = list(set(gt_class_ids))  # All unique class ids from gts
 
-    print('Computing FPR...')
+    # print('Computing FPR...')
 
     # Find True Negative or each class
     for ind_class in complete_classes:
-        print(f'For class {ind_class}')
+        # print(f'For class {ind_class}')
 
         num_non_class_gts = (gt_class_ids != ind_class).sum()
 
-        print(f'Number of non-class: {num_non_class_gts}')
+        # print(f'Number of non-class: {num_non_class_gts}')
 
         # Get matches and overlaps
         # gt_match has index of matched pred box
@@ -965,14 +965,14 @@ def compute_fpr_indiv_class(gt_boxes, gt_class_ids, gt_masks,
             pred_boxes, pred_class_ids, pred_scores, pred_masks, ind_class,
             iou_threshold)
 
-        print(f'TN - {tn_count}, FP - {fp_count}')
+        # print(f'TN - {tn_count}, FP - {fp_count}')
 
         if (fp_count + tn_count) == 0:
             fpr = 0
         else:
             fpr = fp_count / (fp_count + tn_count)
 
-        print(f'FPR for class: {fpr}')
+        #print(f'FPR for class: {fpr}')
 
         total_fpr[ind_class] = fpr
 
