@@ -67,6 +67,8 @@ class ShapesConfig(Config):
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 5
 
+    USE_MINI_MASK = False
+
 
 class ShapesDataset(utils.Dataset):
     """Generates the shapes synthetic dataset. The dataset consists of simple
@@ -185,7 +187,7 @@ class ShapesDataset(utils.Dataset):
         # bounding boxes
         shapes = []
         boxes = []
-        N = random.randint(1, 4)
+        N = random.randint(1, 8)
         for _ in range(N):
             shape, color, dims = self.random_shape(height, width)
             shapes.append((shape, color, dims))
@@ -194,7 +196,7 @@ class ShapesDataset(utils.Dataset):
         # Apply non-max suppression wit 0.3 threshold to avoid
         # shapes covering each other
         keep_ixs = utils.non_max_suppression(
-            np.array(boxes), np.arange(N), 0.3)
+            np.array(boxes), np.arange(N), 0.4)
         shapes = [s for i, s in enumerate(shapes) if i in keep_ixs]
         return bg_color, shapes
 
@@ -231,7 +233,6 @@ def main():
 
     # Which weights to start with?
     init_with = "coco"  # imagenet, coco, or last
-    init_with = None
 
     if init_with == "imagenet":
         model.load_weights(model.get_imagenet_weights(), by_name=True)
@@ -252,7 +253,7 @@ def main():
     # which layers to train by name pattern.
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=1,
+                epochs=10,
                 layers='all')
 
     # Fine tune all layers
@@ -264,12 +265,14 @@ def main():
     #            epochs=2,
     #            layers="all")
 
-    model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes_tf")
-    model.keras_model.save_weights(model_path, save_format='tf')
+    #model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes_tf")
+    #model.keras_model.save_weights(model_path, save_format='tf')
+    model_path = model.find_last()
 
     class InferenceConfig(ShapesConfig):
         GPU_COUNT = 1
         IMAGES_PER_GPU = 1
+        DETECTION_MIN_CONFIDENCE = 0.5
 
     inference_config = InferenceConfig()
 
@@ -287,77 +290,110 @@ def main():
     print("Loading weights from ", model_path)
     model.load_weights(model_path, by_name=True)
 
-    confidence_thresholds = [0.5]
-    tp_rates = []
-    fp_rates = []
+    confidence_thresholds = np.linspace(0.1, 1, 15)
+    all_tp_rates = []
+    all_fp_rates = []
 
     # Compute ROCs for above range of thresholds
     # Compute one for each class vs. the other classes
-    for index, conf in confidence_thresholds:
+    for index, conf in enumerate(confidence_thresholds):
+        tp_of_img = []
+        fp_of_img = []
+        all_classes = []
 
-        tp_at_conf = 0
-        fp_at_conf = 0
+        tp_rates = {}
+        fp_rates = {}
 
+        print('Creating model with confidence threshold: {}'.format(conf))
         inference_config.DETECTION_MIN_CONFIDENCE = conf
-        print('Creating model with confidence threshold: {}', format(conf))
+
         # Recreate the model in inference mode
         model = modellib.MaskRCNN(mode="inference",
                                   config=inference_config,
                                   model_dir=MODEL_DIR)
+
         # Load trained weights
-        print("Loading weights from ", model_path)
         model.load_weights(model_path, by_name=True)
 
         image_ids = np.random.choice(dataset_val.image_ids, 10)
         for image_id in image_ids:
             # Load image and ground truth data
             image, image_meta, gt_class_id, gt_bbox, gt_mask = \
-                modellib.load_image_gt(dataset_val, inference_config,
-                                       image_id, use_mini_mask=False)
-            molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
+                modellib.load_image_gt(dataset_val, config,
+                                       image_id)
+            molded_images = np.expand_dims(modellib.mold_image(image, config), 0)
+
+            print('OG Image')
+            visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, dataset_val.class_names, figsize=(8, 8))
+
             # Run object detection
             results = model.detect([image], verbose=0)
             r = results[0]
-
             # Detect returns:
             # "rois" []
             # "class_ids" [N]
             # "scores" [N]
 
+            print('Pred Image')
+            visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset_val.class_names,
+                                        r['scores'], figsize=(8, 8))
+
             classes = list(set(r['class_ids']))  # All unique class ids
+            for c in classes:
+                if c not in all_classes:
+                    all_classes.append(c)
+
+            complete_classes = dataset_val.class_ids[1:]
 
             # Need TPR and FPR rates for each class versus the other classes
+            # Recall == TPR
+            tpr = utils.compute_ap_indiv_class(gt_bbox, gt_class_id, gt_mask,
+                                               r["rois"], r["class_ids"], r["scores"], r['masks'], complete_classes)
+            total_fpr = utils.compute_fpr_indiv_class(gt_bbox, gt_class_id, gt_mask,
+                                                      r["rois"], r["class_ids"], r["scores"], r['masks'],
+                                                      complete_classes)
 
-            _, _, tpr, _ = utils.compute_ap_indiv_class(gt_bbox, gt_class_id, gt_mask,
-                                                        r["rois"], r["class_ids"], r["scores"], r['masks'])
+            # print(f'For Image: TPR: {tpr} -- FPR: {total_fpr}')
 
-            fpr = utils.compute_fpr()
+            tp_of_img.append(tpr)
+            fp_of_img.append(total_fpr)
 
-            tp_at_conf += tpr
-            fp_at_conf += fpr
+        all_classes = dataset_val.class_ids[1:]
 
-        tp_rates.append(tp_at_conf)
-        fp_rates.append(fp_at_conf)
+        # Need to get average TPR and FPR for number of images used
+        for c in all_classes:
+            tp_s = 0
+            for item in tp_of_img:
+                if c in item.keys():
+                    tp_s += item[c]
+                else:
+                    tp_s += 0
+
+            tp_rates[c] = tp_s / len(image_ids)
+            # tp_rates[c] = tp_s
+
+        # print(tp_rates)
+
+        for c in all_classes:
+            fp_s = 0
+            for item in fp_of_img:
+                if c in item.keys():
+                    fp_s += item[c]
+                else:
+                    fp_s += 0
+            fp_rates[c] = fp_s / len(image_ids)
+            # fp_rates[c] = fp_s
+
+        all_fp_rates.append(fp_rates)
+        all_tp_rates.append(tp_rates)
+
+
+    print(f'TP Rates: {all_tp_rates}')
+    print(f'FP Rates: {all_fp_rates}')
 
     # Plot roc curves
-    utils.compute_roc_curve()
+    utils.compute_roc_curve(all_tp_rates, all_fp_rates, confidence_thresholds)
 
-
-    image_ids = np.random.choice(dataset_val.image_ids, 10)
-    for image_id in image_ids:
-        # Load image and ground truth data
-        image, image_meta, gt_class_id, gt_bbox, gt_mask =\
-            modellib.load_image_gt(dataset_val, inference_config,
-                                   image_id, use_mini_mask=False)
-        molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
-        # Run object detection
-        results = model.detect([image], verbose=0)
-        r = results[0]
-        # Compute AP
-        AP, precisions, recalls, overlaps =\
-            utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
-                             r["rois"], r["class_ids"], r["scores"], r['masks'])
-        APs.append(AP)
 
 
 if __name__ == '__main__':
