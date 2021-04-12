@@ -394,7 +394,7 @@ def main():
     print(f'FP Rates: {all_fp_rates}')
 
     # Plot roc curves
-    utils.compute_roc_curve(all_tp_rates, all_fp_rates, confidence_thresholds)
+    utils.compute_roc_curve(all_tp_rates, all_fp_rates, save_fig=True)
 
 
 

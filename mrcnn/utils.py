@@ -893,7 +893,7 @@ def compute_ap_range(gt_box, gt_class_id, gt_mask,
     return AP
 
 
-def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
+def compute_roc_curve(tp_rates, fp_rates, save_fig):
     """
 
     Args:
@@ -924,7 +924,10 @@ def compute_roc_curve(tp_rates, fp_rates, confidence_thresholds):
         plt.ylabel('True Positive Rates')
         plt.title(f'ROC Curve - {keys[i]}')
 
-    plt.show()
+    if not save_fig:
+        plt.show()
+    else:
+        plt.savefig('ROC.png')
 
     return
 
