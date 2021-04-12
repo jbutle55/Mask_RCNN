@@ -789,7 +789,7 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
         if num_class_gts > 0:
             recalls = np.cumsum(pred_match > -1).astype(np.float32) / num_class_gts  # True Positives
         else:
-            recalls = np.cumsum(pred_match < -1).astype(np.float32)  # all 0's
+            recalls = np.cumsum(pred_match > 0).astype(np.float32)  # all 0's
 
         # Pad with start and end values to simplify the math
         precisions = np.concatenate([[0], precisions, [0]])
