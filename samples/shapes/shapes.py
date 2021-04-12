@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
 
+print(ROOT_DIR)
+
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 
