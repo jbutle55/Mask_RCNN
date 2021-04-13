@@ -489,10 +489,10 @@ def main(args):
                     r[0, :, 1] = r[0, :, 1] * width
                     r[0, :, 3] = r[0, :, 3] * width
 
-                    splash = image.astype(np.uint8)
+                    splash = np.asarray(image).astype(np.uint8)
                     # Draw Bboxes
                     for index, box in enumerate(r[0]):
-                        image = cv2.rectangle(image, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+                        splash = cv2.rectangle(splash, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
 
                 else:
                     r = model.detect([image], verbose=0)[0]
