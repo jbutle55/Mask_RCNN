@@ -325,8 +325,8 @@ def main():
                                        image_id)
             molded_images = np.expand_dims(modellib.mold_image(image, config), 0)
 
-            print('OG Image')
-            visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, dataset_val.class_names, figsize=(8, 8))
+            #print('OG Image')
+            #visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, dataset_val.class_names, figsize=(8, 8))
 
             # Run object detection
             results = model.detect([image], verbose=0)
@@ -336,9 +336,9 @@ def main():
             # "class_ids" [N]
             # "scores" [N]
 
-            print('Pred Image')
-            visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset_val.class_names,
-                                        r['scores'], figsize=(8, 8))
+            #print('Pred Image')
+            #visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset_val.class_names,
+            #                            r['scores'], figsize=(8, 8))
 
             classes = list(set(r['class_ids']))  # All unique class ids
             for c in classes:
