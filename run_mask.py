@@ -270,6 +270,8 @@ def main(args):
         config = WESCAMConfig()
     config.display()
 
+    if args.roi_layer:
+        config.POST_NMS_ROIS_INFERENCE = 100
 
     # Create model
     if command == "train":
@@ -376,18 +378,36 @@ def main(args):
                 # OpenCV returns images as BGR, convert to RGB
                 image = image[..., ::-1]
                 # Detect objects
-                r = model.detect([image], verbose=0)[0]
-                # Color splash
-                splash = color_splash(image, r['masks'])
+                if args.roi_layer:
+                    # Predicts different shape than what model.detect expects
+                    # Predicts shape [1, 1000, 4]
+                    # Proposals in normalized coordinates [batch, rois, (y1, x1, y2, x2)]
+                    r = model.keras_model.predict(image)
 
-                # Draw Bboxes
-                for index, box in enumerate(r['rois']):
-                    # Shape (y1, x1, y2, x2, class_id)
-                    splash = cv2.rectangle(splash, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
-                    class_id = r['class_ids'][index]
-                    splash = cv2.putText(splash, '{} - {:.2f}'.format(config.CLASS_DICT[class_id], r['scores'][index]),
-                                         (box[3], box[2]), cv2.FONT_HERSHEY_COMPLEX,
-                                         1, (255, 0, 0), 2)
+                    # Un-normalize
+                    r[0, :, 0] = r[0, :, 0] * height
+                    r[0, :, 2] = r[0, :, 2] * height
+                    r[0, :, 1] = r[0, :, 1] * width
+                    r[0, :, 3] = r[0, :, 3] * width
+
+                    splash = image
+                    # Draw Bboxes
+                    for index, box in enumerate(r[0]):
+                        image = cv2.rectangle(image, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+
+                else:
+                    r = model.detect([image], verbose=0)[0]
+                    # Color splash
+                    splash = color_splash(image, r['masks'])
+
+                    # Draw Bboxes
+                    for index, box in enumerate(r['rois']):
+                        # Shape (y1, x1, y2, x2, class_id)
+                        splash = cv2.rectangle(splash, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+                        class_id = r['class_ids'][index]
+                        splash = cv2.putText(splash, '{} - {:.2f}'.format(config.CLASS_DICT[class_id], r['scores'][index]),
+                                             (box[3], box[2]), cv2.FONT_HERSHEY_COMPLEX,
+                                             1, (255, 0, 0), 2)
 
                 # RGB -> BGR to save image to video
                 splash = splash[..., ::-1]
