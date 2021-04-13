@@ -522,13 +522,13 @@ def color_splash(image, mask):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('command')
-    parser.add_argument('dataset', default='')
-    parser.add_argument('logs', default='')
-    parser.add_argument('video', default='')
-    parser.add_argument('output', default='output')
-    parser.add_argument('config', default='coco')
-    parser.add_argument('weights', default='mask_rcnn_coco.h5')
+    parser.add_argument('--command')
+    parser.add_argument('--dataset', default='')
+    parser.add_argument('--logs', default='')
+    parser.add_argument('--video', default='')
+    parser.add_argument('--output', default='output')
+    parser.add_argument('--config', default='coco')
+    parser.add_argument('--weights', default='mask_rcnn_coco.h5')
     arguments = parser.parse_args()
     main(arguments)
 
