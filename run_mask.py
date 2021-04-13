@@ -266,7 +266,7 @@ def main(args):
     elif config_arg == 'shapes':
         config = ShapesConfig()
     elif config_arg == 'wescam':
-        config = WESCAMConfig
+        config = WESCAMConfig()
     config.display()
 
 
