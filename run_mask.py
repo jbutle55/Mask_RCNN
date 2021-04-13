@@ -8,6 +8,7 @@ import skimage
 import imgaug
 import random
 import math
+from tensorflow.keras.models import Model
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
@@ -296,6 +297,12 @@ def main(args):
 
     model.keras_model.summary()
 
+    if args.roi_layer:
+        layer_name = 'ROI'
+        layer_model = Model(inputs=model.keras_model.input,
+                            outputs=model.keras_model.get_layer(layer_name).output)
+        model.keras_model = layer_model
+
     # Train or evaluate
     if command == "train":
         if config == 'coco':
@@ -529,6 +536,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', default='output')
     parser.add_argument('--config', default='coco')
     parser.add_argument('--weights', default='mask_rcnn_coco.h5')
+    parser.add_argument('--roi_layer', default=False)
     arguments = parser.parse_args()
     main(arguments)
 
