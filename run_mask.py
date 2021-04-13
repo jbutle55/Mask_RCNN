@@ -381,10 +381,13 @@ def main(args):
                 splash = color_splash(image, r['masks'])
 
                 # Draw Bboxes
-                for count, box in enumerate(r['rois']):
+                for index, box in enumerate(r['rois']):
                     # Shape (y1, x1, y2, x2, class_id)
                     splash = cv2.rectangle(splash, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
-                    splash = cv2.addText(splash, r['class_ids'][count], (box[3], box[2]), 2)
+                    class_id = r['class_ids'][index]
+                    splash = cv2.putText(splash, '{} - {:.2f}'.format(config.CLASS_DICT[class_id], r['scores'][index]),
+                                         (box[3], box[2]), cv2.FONT_HERSHEY_COMPLEX,
+                                         1, (255, 0, 0), 2)
 
                 # RGB -> BGR to save image to video
                 splash = splash[..., ::-1]
