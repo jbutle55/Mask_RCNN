@@ -353,7 +353,7 @@ def main(args):
     config.display()
 
     if args.roi_layer:
-        config.POST_NMS_ROIS_INFERENCE = 100
+        config.POST_NMS_ROIS_INFERENCE = 1000
 
     # Create model
     if command == "train":
