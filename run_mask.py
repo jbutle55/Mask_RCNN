@@ -525,7 +525,8 @@ if __name__ == '__main__':
     parser.add_argument('logs', required=False)
     parser.add_argument('video', required=False)
     parser.add_argument('output', default='output')
-    parser.add_argument('config', required=True, default='coco')
+    parser.add_argument('config', default='coco')
+    parser.add_argument('weights', default='mask_rcnn_coco.h5')
     arguments = parser.parse_args()
     main(arguments)
 
