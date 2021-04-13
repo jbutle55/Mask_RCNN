@@ -466,7 +466,7 @@ def main(args):
                     # Proposals in normalized coordinates [batch, rois, (y1, x1, y2, x2)]
 
                     # Mold inputs to format expected by the neural network
-                    molded_images, image_metas, windows = model.mold_inputs(image)
+                    molded_images, image_metas, windows = model.mold_inputs([image])
 
                     # Validate image sizes
                     # All images in a batch MUST be of the same size
