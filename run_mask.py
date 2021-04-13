@@ -382,7 +382,25 @@ def main(args):
                     # Predicts different shape than what model.detect expects
                     # Predicts shape [1, 1000, 4]
                     # Proposals in normalized coordinates [batch, rois, (y1, x1, y2, x2)]
-                    r = model.keras_model.predict(image)
+
+                    # Mold inputs to format expected by the neural network
+                    molded_images, image_metas, windows = model.mold_inputs(image)
+
+                    # Validate image sizes
+                    # All images in a batch MUST be of the same size
+                    image_shape = molded_images[0].shape
+                    for g in molded_images[1:]:
+                        assert g.shape == image_shape, \
+                            "After resizing, all images must have the same size. Check IMAGE_RESIZE_MODE and image sizes."
+
+                    # Anchors
+                    anchors = model.get_anchors(image_shape)
+                    # Duplicate across the batch dimension because Keras requires it
+                    # TODO: can this be optimized to avoid duplicating the anchors?
+                    anchors = np.broadcast_to(anchors, (model.config.BATCH_SIZE,) + anchors.shape)
+
+
+                    r = model.keras_model.predict([molded_images, image_metas, anchors])
 
                     # Un-normalize
                     r[0, :, 0] = r[0, :, 0] * height
