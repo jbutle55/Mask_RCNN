@@ -539,7 +539,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', default='output')
     parser.add_argument('--config', default='coco')
     parser.add_argument('--weights', default='mask_rcnn_coco.h5')
-    parser.add_argument('--roi_layer', default=False)
+    parser.add_argument('--roi_layer', action='store_true', default=False)
     arguments = parser.parse_args()
     main(arguments)
 
