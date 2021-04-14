@@ -212,6 +212,8 @@ class WESCAMConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 80 + 1  # background + 3 shapes
 
+    DETECTION_MIN_CONFIDENCE = 0.7
+
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
     #IMAGE_MIN_DIM = 1024
