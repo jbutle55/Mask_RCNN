@@ -489,15 +489,33 @@ def main(args):
 
                     r = model.keras_model.predict([molded_images, image_metas, anchors])
 
+                    window = windows[0]
+                    original_image_shape = image.shape
+                    boxes = r[0, :, :]
+                    # original_image_shape = [height, width, 3]
+
+                    # Translate normalized coordinates in the resized image to pixel
+                    # coordinates in the original image before resizing
+                    window = utils.norm_boxes(window, image_shape[:2])
+                    wy1, wx1, wy2, wx2 = window
+                    shift = np.array([wy1, wx1, wy1, wx1])
+                    wh = wy2 - wy1  # window height
+                    ww = wx2 - wx1  # window width
+                    scale = np.array([wh, ww, wh, ww])
+                    # Convert boxes to normalized coordinates on the window
+                    boxes = np.divide(boxes - shift, scale)
+                    # Convert boxes to pixel coordinates on the original image
+                    boxes = utils.denorm_boxes(boxes, original_image_shape[:2])
+
                     # Un-normalize
-                    r[0, :, 0] = r[0, :, 0] * height
-                    r[0, :, 2] = r[0, :, 2] * height
-                    r[0, :, 1] = r[0, :, 1] * width
-                    r[0, :, 3] = r[0, :, 3] * width
+                    # r[0, :, 0] = r[0, :, 0] * height
+                    # r[0, :, 2] = r[0, :, 2] * height
+                    # r[0, :, 1] = r[0, :, 1] * width
+                    # r[0, :, 3] = r[0, :, 3] * width
 
                     splash = np.asarray(image).astype(np.uint8)
                     # Draw Bboxes
-                    for index, box in enumerate(r[0]):
+                    for index, box in enumerate(boxes):
                         splash = cv2.rectangle(splash, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
 
                 elif args.detection_layer:
