@@ -552,7 +552,7 @@ def main(args):
                     for index, box in enumerate(boxes):
                         splash = cv2.rectangle(splash, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
                         splash = cv2.putText(splash,
-                                             '{:.2f}'.format(box[5]),
+                                             '{:.2f}'.format(r[0, index, 5]),
                                              (box[3], box[2]), cv2.FONT_HERSHEY_COMPLEX,
                                              1, (255, 0, 0), 2)
 
