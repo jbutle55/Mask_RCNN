@@ -387,6 +387,12 @@ def main(args):
                             outputs=model.keras_model.get_layer(layer_name).output)
         model.keras_model = layer_model
 
+    elif args.detection_layer:
+        layer_name = 'mrcnn_detection'
+        layer_model = Model(inputs=model.keras_model.input,
+                            outputs=model.keras_model.get_layer(layer_name).output)
+        model.keras_model = layer_model
+
     # Train or evaluate
     if command == "train":
         if config == 'coco':
@@ -493,6 +499,44 @@ def main(args):
                     # Draw Bboxes
                     for index, box in enumerate(r[0]):
                         splash = cv2.rectangle(splash, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+
+                elif args.detection_layer:
+                    # Output of shape [batch, num_detections, (y1, x1, y2, x2, class_id, class_score)] where
+                    # coordinates are normalized.
+
+                    # Mold inputs to format expected by the neural network
+                    molded_images, image_metas, windows = model.mold_inputs([image])
+
+                    # Validate image sizes
+                    # All images in a batch MUST be of the same size
+                    image_shape = molded_images[0].shape
+                    for g in molded_images[1:]:
+                        assert g.shape == image_shape, \
+                            "After resizing, all images must have the same size. Check IMAGE_RESIZE_MODE and image sizes."
+
+                    # Anchors
+                    anchors = model.get_anchors(image_shape)
+                    # Duplicate across the batch dimension because Keras requires it
+                    anchors = np.broadcast_to(anchors, (model.config.BATCH_SIZE,) + anchors.shape)
+
+                    r = model.keras_model.predict([molded_images, image_metas, anchors])
+
+                    # Un-normalize
+                    r[0, :, 0] = r[0, :, 0] * height
+                    r[0, :, 2] = r[0, :, 2] * height
+                    r[0, :, 1] = r[0, :, 1] * width
+                    r[0, :, 3] = r[0, :, 3] * width
+
+                    splash = np.asarray(image).astype(np.uint8)
+                    # Draw Bboxes
+                    for index, box in enumerate(r[0]):
+                        splash = cv2.rectangle(splash, (box[1], box[0]), (box[3], box[2]), (255, 0, 0), 2)
+                        splash = cv2.putText(splash,
+                                             '{:.2f}'.format(box[5]),
+                                             (box[3], box[2]), cv2.FONT_HERSHEY_COMPLEX,
+                                             1, (255, 0, 0), 2)
+
+
 
                 else:
                     r = model.detect([image], verbose=0)[0]
@@ -659,6 +703,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', default='coco')
     parser.add_argument('--weights', default='mask_rcnn_coco.h5')
     parser.add_argument('--roi_layer', action='store_true', default=False)
+    parser.add_argument('--detection_layer', action='store_true', default=False)
     arguments = parser.parse_args()
     main(arguments)
 
