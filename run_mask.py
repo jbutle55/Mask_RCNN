@@ -679,6 +679,8 @@ def main(args):
     output = args.output
     config_arg = args.config
 
+    print(config_arg)
+
     # Setup configs
     if config_arg == 'coco':
         config = CocoConfig()
