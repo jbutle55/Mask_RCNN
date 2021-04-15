@@ -1114,7 +1114,7 @@ def main(args):
                 complete_classes = dataset_val.class_ids[1:]
                 print(f'complete_classes: {complete_classes}')
 
-                complete_classes = ['car']
+                # complete_classes = []
 
                 # Need TPR and FPR rates for each class versus the other classes
                 # Recall == TPR
