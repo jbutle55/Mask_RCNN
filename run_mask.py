@@ -836,7 +836,7 @@ def color_splash(image, mask):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--command', choices=['detect', 'train', 'evaluate', 'roc'])
+    parser.add_argument('--command', choices=['detect_vid', 'train', 'evaluate', 'roc'])
     parser.add_argument('--dataset', default='')
     parser.add_argument('--logs', default='')
     parser.add_argument('--video', default='')
