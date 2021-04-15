@@ -212,7 +212,7 @@ class WESCAMConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 80 + 1  # background + 3 shapes
 
-    DETECTION_MIN_CONFIDENCE = False
+    DETECTION_MIN_CONFIDENCE = 0.1
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
@@ -509,12 +509,6 @@ def main(args):
                     # Convert boxes to pixel coordinates on the original image
                     boxes = utils.denorm_boxes(boxes, original_image_shape[:2])
 
-                    # Un-normalize
-                    # r[0, :, 0] = r[0, :, 0] * height
-                    # r[0, :, 2] = r[0, :, 2] * height
-                    # r[0, :, 1] = r[0, :, 1] * width
-                    # r[0, :, 3] = r[0, :, 3] * width
-
                     splash = np.asarray(image).astype(np.uint8)
                     # Draw Bboxes
                     for index, box in enumerate(boxes):
@@ -709,6 +703,115 @@ def main(args):
         # Plot roc curves
         utils.compute_roc_curve(all_tp_rates, all_fp_rates, confidence_thresholds)
 
+    if command == 'roi':
+        confidence_thresholds = np.linspace(0.1, 1, 15)
+        all_tp_rates = []
+        all_fp_rates = []
+
+        # Compute ROCs for above range of thresholds
+        # Compute one for each class vs. the other classes
+        for index, conf in enumerate(confidence_thresholds):
+            tp_of_img = []
+            fp_of_img = []
+            all_classes = []
+
+            tp_rates = {}
+            fp_rates = {}
+
+            print('Creating model with confidence threshold: {}'.format(conf))
+            config.DETECTION_MIN_CONFIDENCE = conf
+
+            # Recreate the model in inference mode
+            model = modellib.MaskRCNN(mode="inference",
+                                      config=conf,
+                                      model_dir=MODEL_DIR)
+
+            # Load trained weights
+            model.load_weights(model_path, by_name=True)
+
+            image_ids = np.random.choice(dataset_val.image_ids, 10)
+            for image_id in image_ids:
+                # Load image and ground truth data
+                image, image_meta, gt_class_id, gt_bbox, gt_mask = \
+                    modellib.load_image_gt(dataset_val, config,
+                                           image_id)
+                molded_images = np.expand_dims(modellib.mold_image(image, config), 0)
+
+                # print('OG Image')
+                # visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, dataset_val.class_names, figsize=(8, 8))
+
+                # Run object detection
+                results = model.detect([image], verbose=0)
+                r = results[0]
+                # Detect returns:
+                # "rois" []
+                # "class_ids" [N]
+                # "scores" [N]
+
+                # print('Pred Image')
+                # visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], dataset_val.class_names,
+                #                            r['scores'], figsize=(8, 8))
+
+                classes = list(set(r['class_ids']))  # All unique class ids
+                for c in classes:
+                    if c not in all_classes:
+                        all_classes.append(c)
+
+                complete_classes = dataset_val.class_ids[1:]
+                print(complete_classes)
+
+                complete_classes = ['car']
+
+                # Need TPR and FPR rates for each class versus the other classes
+                # Recall == TPR
+                tpr = utils.compute_ap_indiv_class(gt_bbox, gt_class_id, gt_mask,
+                                                   r["rois"], r["class_ids"], r["scores"], r['masks'], complete_classes)
+                total_fpr = utils.compute_fpr_indiv_class(gt_bbox, gt_class_id, gt_mask,
+                                                          r["rois"], r["class_ids"], r["scores"], r['masks'],
+                                                          complete_classes)
+
+                # print(f'For Image: TPR: {tpr} -- FPR: {total_fpr}')
+
+                tp_of_img.append(tpr)
+                fp_of_img.append(total_fpr)
+
+            #all_classes = dataset_val.class_ids[1:]
+
+            # Need to get average TPR and FPR for number of images used
+            #for c in all_classes:
+            for c in complete_classes:
+                tp_s = 0
+                for item in tp_of_img:
+                    if c in item.keys():
+                        tp_s += item[c]
+                    else:
+                        tp_s += 0
+
+                tp_rates[c] = tp_s / len(image_ids)
+                # tp_rates[c] = tp_s
+
+            # print(tp_rates)
+
+            # for c in all_classes:
+            for c in complete_classes:
+                fp_s = 0
+                for item in fp_of_img:
+                    if c in item.keys():
+                        fp_s += item[c]
+                    else:
+                        fp_s += 0
+                fp_rates[c] = fp_s / len(image_ids)
+                # fp_rates[c] = fp_s
+
+            all_fp_rates.append(fp_rates)
+            all_tp_rates.append(tp_rates)
+
+        print(f'TP Rates: {all_tp_rates}')
+        print(f'FP Rates: {all_fp_rates}')
+
+        # Plot roc curves
+        utils.compute_roc_curve(all_tp_rates, all_fp_rates, save_fig=True)
+
     return
 
 
@@ -733,7 +836,7 @@ def color_splash(image, mask):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--command')
+    parser.add_argument('--command', choices=['detect', 'train', 'evaluate', 'roc'])
     parser.add_argument('--dataset', default='')
     parser.add_argument('--logs', default='')
     parser.add_argument('--video', default='')
