@@ -631,6 +631,45 @@ class StanfordDataset(utils.Dataset):
         return mask.astype(np.bool), np.ones([mask.shape[-1]], dtype=np.int32)
 
 
+class StanfordConfig(Config):
+    # Give the configuration a recognizable name
+    NAME = "stanford"
+
+    # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
+    # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1
+
+    # Number of classes (including background)
+    NUM_CLASSES = 1 + 1  # background + 3 shapes
+
+    DETECTION_MIN_CONFIDENCE = 0.5
+
+    # Use small images for faster training. Set the limits of the small side
+    # the large side, and that determines the image shape.
+    #IMAGE_MIN_DIM = 1024
+    #IMAGE_MAX_DIM = 1024
+
+    # Use smaller anchors because our image and objects are small
+    #RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)  # anchor side in pixels
+
+    # Reduce training ROIs per image because the images are small and have
+    # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
+    #TRAIN_ROIS_PER_IMAGE = 32
+
+    # Use a small epoch since the data is simple
+    #STEPS_PER_EPOCH = 300
+
+    # use small validation steps since the epoch is small
+    #VALIDATION_STEPS = 5
+
+    USE_MINI_MASK = False
+
+    CLASS_DICT = {0: u'__background__',
+                  1: u'car',
+                  }
+
+
 def main(args):
     command = args.command
     weights = args.weights  # mask_rcnn_coco.h5'
@@ -647,6 +686,8 @@ def main(args):
         config = ShapesConfig()
     elif config_arg == 'wescam':
         config = WESCAMConfig()
+    elif config_arg == 'stanford':
+        config = StanfordConfig()
     config.display()
 
     if args.roi_layer:
@@ -1005,9 +1046,8 @@ def main(args):
         all_fp_rates = []
 
         # Validation dataset
-        dataset_val = CocoDataset()
-        val_type = "val" if year in '2017' else "minival"
-        dataset_val.load_coco(dataset, val_type, year=year, auto_download=download)
+        dataset_val = StanfordDataset()
+        dataset_val.load_stanford()
         dataset_val.prepare()
 
         # Compute ROCs for above range of thresholds
