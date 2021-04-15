@@ -555,7 +555,7 @@ class StanfordDataset(utils.Dataset):
     def load_stanford(self):
         self.add_class("stanford", 1, "car")
 
-        dataset_dir = ''
+        dataset_dir = '/home/justin/Data/Stanford/sdd/Annotations_json/nexus_video8_.json'
 
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
