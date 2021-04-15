@@ -600,7 +600,7 @@ class StanfordDataset(utils.Dataset):
 
             self.add_image(
                 "stanford",
-                image_id=a['filename'],  # use file name as a unique image id
+                image_id=a['file_name'],  # use file name as a unique image id
                 path=filepath,
                 width=width, height=height,
                 polygons=polygons)
