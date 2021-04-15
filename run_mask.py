@@ -1080,17 +1080,6 @@ def main(args):
                 "mrcnn_class_logits", "mrcnn_bbox_fc",
                 "mrcnn_bbox", "mrcnn_mask"])
 
-
-            count = 0
-            success = True
-            while success:
-                print("frame: ", count)
-                # Read next image
-                success, image = vcapture.read()
-                if success:
-                    # OpenCV returns images as BGR, convert to RGB
-                    image = image[..., ::-1]
-
             image_ids = np.random.choice(dataset_val.image_ids, 10)
             image_ids = dataset_val.image_ids
             for image_id in image_ids:
