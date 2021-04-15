@@ -562,10 +562,10 @@ class StanfordDataset(utils.Dataset):
 
         print(annotations)
 
-        image_base = annotations['images'][0]['file_name'][:-4]
+        image_base = annotations[1]['images'][0]['file_name'][:-4]
 
-        width = annotations['images'][0]['width']
-        height = annotations['images'][0]['height']
+        width = annotations[1]['images'][0]['width']
+        height = annotations[1]['images'][0]['height']
 
         print(f'image base: {image_base}')
 
