@@ -560,11 +560,10 @@ class StanfordDataset(utils.Dataset):
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
 
-        images = [i for i in annotations['images']['file_name']]
+        image_base = annotations['images'][0]['file_name'][:-4]
 
-        image_base = images[0][:-4]
-        width = images[0]['width']
-        height = images[0]['height']
+        width = annotations['images'][0]['width']
+        height = annotations['images'][0]['height']
 
         print(f'image base: {image_base}')
 
