@@ -1075,7 +1075,11 @@ def main(args):
                                       model_dir=MODEL_DIR)
 
             # Load trained weights
-            model.load_weights(model_path, by_name=True)
+            #model.load_weights(model_path, by_name=True)
+            model.load_weights(model_path, by_name=True, exclude=[
+                "mrcnn_class_logits", "mrcnn_bbox_fc",
+                "mrcnn_bbox", "mrcnn_mask"])
+
 
             count = 0
             success = True
