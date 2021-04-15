@@ -931,7 +931,7 @@ def main(args):
                 vwriter.write(splash)
                 count += 1
         vwriter.release()
-    print("Saved to ", file_name)
+        print("Saved to ", file_name)
 
     if command == 'evaluate':
         # Recreate the model in inference mode
