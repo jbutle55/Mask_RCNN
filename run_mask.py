@@ -1124,7 +1124,7 @@ def main(args):
                                                           r["rois"], r["class_ids"], r["scores"], r['masks'],
                                                           complete_classes)
 
-                # print(f'For Image: TPR: {tpr} -- FPR: {total_fpr}')
+                print(f'For Image: TPR: {tpr} -- FPR: {total_fpr}')
 
                 tp_of_img.append(tpr)
                 fp_of_img.append(total_fpr)
