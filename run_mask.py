@@ -1082,8 +1082,8 @@ def main(args):
                 "mrcnn_class_logits", "mrcnn_bbox_fc",
                 "mrcnn_bbox", "mrcnn_mask"])
 
-            image_ids = np.random.choice(dataset_val.image_ids, 10)
-            image_ids = dataset_val.image_ids
+            image_ids = np.random.choice(dataset_val.image_ids, 15)
+            # image_ids = dataset_val.image_ids
             for image_id in image_ids:
                 # Load image and ground truth data
                 image, image_meta, gt_class_id, gt_bbox, gt_mask = \
