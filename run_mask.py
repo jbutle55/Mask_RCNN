@@ -557,6 +557,8 @@ class StanfordDataset(utils.Dataset):
 
         dataset_dir = '/home/justin/Data/Stanford/sdd/Annotations_json/nexus_video8_.json'
 
+        image_dir = '/home/justin/Data/Stanford/sdd/images'
+
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
 
@@ -584,8 +586,8 @@ class StanfordDataset(utils.Dataset):
                 continue
             bbox = a['bbox']
 
-            filepath = os.path.abspath(f'{image_base}{id}.json')
-            # print(f'file path: {filepath}')
+            filepath = os.path.join(image_dir, '{image_base}{id}.json')
+            print(f'file path: {filepath}')
             polygons = bbox
 
 
