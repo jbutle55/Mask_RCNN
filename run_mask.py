@@ -576,6 +576,8 @@ class StanfordDataset(utils.Dataset):
         # Add images
         for a in annotations:
 
+            print(a)
+
             id = a['image_id']
             category = a['category_id']
 
