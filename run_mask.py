@@ -705,6 +705,7 @@ def main(args):
 
     if command == 'roi':
         confidence_thresholds = np.linspace(0.1, 1, 15)
+        confidence_thresholds = [0.5]
         all_tp_rates = []
         all_fp_rates = []
 
@@ -729,7 +730,29 @@ def main(args):
             # Load trained weights
             model.load_weights(model_path, by_name=True)
 
+            vcapture = cv2.VideoCapture(args.video)
+            width = int(vcapture.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(vcapture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            fps = vcapture.get(cv2.CAP_PROP_FPS)
+
+            # Define codec and create video writer
+            file_name = output
+            vwriter = cv2.VideoWriter(file_name,
+                                      cv2.VideoWriter_fourcc(*'MJPG'),
+                                      fps, (width, height))
+
+            count = 0
+            success = True
+            while success:
+                print("frame: ", count)
+                # Read next image
+                success, image = vcapture.read()
+                if success:
+                    # OpenCV returns images as BGR, convert to RGB
+                    image = image[..., ::-1]
+
             image_ids = np.random.choice(dataset_val.image_ids, 10)
+            image_ids = dataset_val.image_ids
             for image_id in image_ids:
                 # Load image and ground truth data
                 image, image_meta, gt_class_id, gt_bbox, gt_mask = \
@@ -758,7 +781,7 @@ def main(args):
                         all_classes.append(c)
 
                 complete_classes = dataset_val.class_ids[1:]
-                print(complete_classes)
+                print(f'complete_classes: {complete_classes}')
 
                 complete_classes = ['car']
 
