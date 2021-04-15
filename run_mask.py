@@ -576,8 +576,6 @@ class StanfordDataset(utils.Dataset):
         # Add images
         for a in annotations:
 
-            print(a)
-
             id = a['image_id']
             category = a['category_id']
 
@@ -602,7 +600,7 @@ class StanfordDataset(utils.Dataset):
 
             self.add_image(
                 "stanford",
-                image_id=a['file_name'],  # use file name as a unique image id
+                image_id=a['image_id'],  # use file name as a unique image id
                 path=filepath,
                 width=width, height=height,
                 polygons=polygons)
