@@ -586,7 +586,7 @@ class StanfordDataset(utils.Dataset):
                 continue
             bbox = a['bbox']
 
-            filepath = os.path.join(image_dir, '{image_base}{id}.json')
+            filepath = os.path.join(image_dir, f'{image_base}{id}.json')
             print(f'file path: {filepath}')
             polygons = bbox
 
