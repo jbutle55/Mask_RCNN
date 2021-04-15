@@ -571,7 +571,7 @@ class StanfordDataset(utils.Dataset):
 
         # The VIA tool saves images in the JSON even if they don't have any
         # annotations. Skip unannotated images.
-        annotations = [a for a in annotations if a['annotations']]
+        annotations = [a for a in annotations[2]]
 
         # Add images
         for a in annotations:
