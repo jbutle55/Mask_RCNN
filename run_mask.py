@@ -585,7 +585,7 @@ class StanfordDataset(utils.Dataset):
             bbox = a['bbox']
 
             filepath = os.path.abspath(f'{image_base}{id}.json')
-            print(f'file path: {filepath}')
+            # print(f'file path: {filepath}')
             polygons = bbox
 
 
@@ -1071,7 +1071,7 @@ def main(args):
 
             # Recreate the model in inference mode
             model = modellib.MaskRCNN(mode="inference",
-                                      config=conf,
+                                      config=config,
                                       model_dir=MODEL_DIR)
 
             # Load trained weights
