@@ -212,7 +212,7 @@ class WESCAMConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 80 + 1  # background + 3 shapes
 
-    DETECTION_MIN_CONFIDENCE = 0.1
+    DETECTION_MIN_CONFIDENCE = 0.75
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
@@ -604,7 +604,7 @@ class StanfordDataset(utils.Dataset):
 
             self.add_image(
                 "stanford",
-                image_id=f'{image_base}{id}',  # use file name as a unique image id
+                image_id=id,  # use file name as a unique image id
                 path=filepath,
                 width=width, height=height,
                 polygons=polygons)
