@@ -1084,6 +1084,8 @@ def main(args):
                 "mrcnn_class_logits", "mrcnn_bbox_fc",
                 "mrcnn_bbox", "mrcnn_mask"])
 
+            print(f'IDs: {dataset_val.image_ids}')
+
             image_ids = np.random.choice(dataset_val.image_ids, 15)
             # image_ids = dataset_val.image_ids
             for image_id in image_ids:
