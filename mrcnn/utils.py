@@ -783,6 +783,9 @@ def compute_ap_indiv_class(gt_boxes, gt_class_ids, gt_masks,
         precisions = np.cumsum(pred_match > -1) / (np.arange(len(pred_match)) + 1)
         #recalls = np.cumsum(pred_match > -1).astype(np.float32) / len(gt_match)  # True Positives
         # Divide by number of specific class rather than len of gt_match
+
+        print(f'GT class ids {gt_class_ids}')
+        print(f'individual class {ind_class}')
         num_class_gts = (gt_class_ids == ind_class).sum()
         # print(f'Num of class {ind_class}: {num_class_gts}')
         # print(num_class_gts)
