@@ -587,7 +587,7 @@ class StanfordDataset(utils.Dataset):
             bbox = a['bbox']
 
             filepath = os.path.join(image_dir, f'{image_base}{id}.jpg')
-            print(f'file path: {filepath}')
+            # print(f'file path: {filepath}')
             polygons = bbox
 
 
@@ -600,9 +600,11 @@ class StanfordDataset(utils.Dataset):
             # else:
             #     polygons = [r['shape_attributes'] for r in a['regions']]
 
+            print(f'Image ID: {image_base}{id}')
+
             self.add_image(
                 "stanford",
-                image_id=a['image_id'],  # use file name as a unique image id
+                image_id=f'{image_base}{id}',  # use file name as a unique image id
                 path=filepath,
                 width=width, height=height,
                 polygons=polygons)
