@@ -1089,6 +1089,8 @@ def main(args):
                 image, image_meta, gt_class_id, gt_bbox, gt_mask = \
                     modellib.load_image_gt(dataset_val, config,
                                            image_id)
+                print(f'GT_box: {gt_bbox}')
+
                 molded_images = np.expand_dims(modellib.mold_image(image, config), 0)
 
                 # print('OG Image')
