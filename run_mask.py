@@ -1097,7 +1097,6 @@ def main(args):
                 # Run object detection
                 results = model.detect([image], verbose=0)
                 r = results[0]
-                print(r)
                 # Detect returns:
                 # "rois" []
                 # "class_ids" [N]
