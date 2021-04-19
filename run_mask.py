@@ -862,8 +862,8 @@ def main(args):
             "mrcnn_bbox", "mrcnn_mask"])
 
         # Validation dataset
-        dataset_val = StanfordDataset()
-        dataset_val.load_stanford()
+        dataset_val = AerialDataset()
+        dataset_val.load_aerial()
         dataset_val.prepare()
 
         image_id = np.random.choice(dataset_val.image_ids, 1)
