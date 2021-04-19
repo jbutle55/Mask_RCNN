@@ -679,69 +679,63 @@ class StanfordConfig(Config):
 
 class AerialDataset(utils.Dataset):
     def load_aerial(self):
-        self.add_class("aerial", 1, "car")
-        self.add_class("aerial", 2, "person")
-        self.add_class("aerial", 3, "bus")
-        self.add_class("aerial", 4, "truck")
-        self.add_class("aerial", 5, "train")
-        self.add_class("aerial", 5, "bicycle")
-        self.add_class("aerial", 5, "building")
+        self.add_class("aerial", 1, "truck")
+        self.add_class("aerial", 2, "test2")
+        self.add_class("aerial", 3, "train")
+        self.add_class("aerial", 4, "car")
+        self.add_class("aerial", 5, "bus")
+        self.add_class("aerial", 6, "person")
+        self.add_class("aerial", 7, "traffic light")
+        self.add_class("aerial", 8, "building")
+        self.add_class("aerial", 9, "test")
+        self.add_class("aerial", 10, "motorbike")
 
         dataset_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train/annotations.json'
+        # dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/annotations.json'
 
         image_dir = '/home/justin/Data/aerial-cars-private'
+        # image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
 
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
 
         # Need to pass image filename, path, and boxes
 
-        test = annotations[2]
-        # print(f'TEST 2: {test}')
-
         image_info = {}
 
         for img in annotations[0]:
             id = img['id']
             image_info[id] = {'width': img['width'], 'height': img['height'], 'filepath': img['file_name']}
+            bboxes = []
+            class_list = []
 
-        # The VIA tool saves images in the JSON even if they don't have any
-        # annotations. Skip unannotated images.
-        annotations = [a for a in annotations[2]]
+            width = img['width']
+            height = img['height']
+            filepath = os.path.join(image_dir, img['file_name'])
 
-        # Add images
-        for a in annotations:
-            print(f'Annotation: {a}')
-
-            id = a['image_id']
-            bbox = a['segmentation']
-
-            width = image_info[id]['width']
-            height = image_info[id]['height']
-
-            file_path = image_info[id]['filepath']
-
-            filepath = os.path.join(image_dir, file_path)
-            polygons = bbox
-
-            # print(f'ID: {id}, PATH: {filepath}, WIDTH: {width}, HEIGHT: {height}')
-            # print(id)
-
-            # Get the x, y coordinaets of points of the polygons that make up
-            # the outline of each object instance. These are stores in the
-            # shape_attributes (see json format above)
-            # The if condition is needed to support VIA versions 1.x and 2.x.
-            # if type(a['regions']) is dict:
-            #     polygons = [r['shape_attributes'] for r in a['regions'].values()]
-            # else:
-            #     polygons = [r['shape_attributes'] for r in a['regions']]
+            for a in annotations[2]:
+                if a['image_id'] == id:
+                    bboxes.append(a['segmentation'])
+                    class_list.append(a['category_id'])
 
             self.add_image(
                 "aerial",
                 image_id=id,  # use file name as a unique image id
                 path=filepath,
                 width=width, height=height,
-                polygons=polygons)
+                polygons=bboxes,
+                classes=class_list)
+
+        return
+
+    def add_image(self, source, image_id, path, **kwargs):
+        image_info = {
+            "id": image_id,
+            "source": source,
+            "path": path,
+        }
+        image_info.update(kwargs)
+        self.image_info.append(image_info)
 
     def load_mask(self, image_id):
         """Generate instance masks for an image.
@@ -752,7 +746,7 @@ class AerialDataset(utils.Dataset):
         """
         # If not a balloon dataset image, delegate to parent class.
         image_info = self.image_info[image_id]
-        if image_info["source"] != "balloon":
+        if image_info["source"] != "aerial":
             return super(self.__class__, self).load_mask(image_id)
 
         # Convert polygons to a bitmap mask of shape
@@ -761,13 +755,21 @@ class AerialDataset(utils.Dataset):
         mask = np.zeros([info["height"], info["width"], len(info["polygons"])],
                         dtype=np.uint8)
         for i, p in enumerate(info["polygons"]):
+            copy = p[0]
+            x_points = []
+            y_points = []
+            while len(copy) > 0:
+                y_points.append(copy.pop())
+                x_points.append(copy.pop())
             # Get indexes of pixels inside the polygon and set them to 1
-            rr, cc = skimage.draw.polygon(p['all_points_y'], p['all_points_x'])
+            rr, cc = skimage.draw.polygon(y_points, x_points)
             mask[rr, cc, i] = 1
+
+        class_array = np.asarray(info['classes'])
 
         # Return mask, and array of class IDs of each instance. Since we have
         # one class ID only, we return an array of 1s
-        return mask.astype(np.bool), np.ones([mask.shape[-1]], dtype=np.int32)
+        return mask, class_array
 
 
 class AerialConfig(Config):
@@ -780,20 +782,23 @@ class AerialConfig(Config):
     IMAGES_PER_GPU = 1
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 7  # background + 5 classes
+    NUM_CLASSES = 1 + 8  # background + 5 classes
 
     DETECTION_MIN_CONFIDENCE = 0.5
 
     USE_MINI_MASK = False
 
     CLASS_DICT = {0: u'__background__',
-                  1: u'car',
-                  2: u'person',
-                  3: u'bus',
-                  4: u'truck',
-                  5: u'train',
-                  6: u'bicycle',
-                  7: u'building'
+                  1: u'truck',
+                  2: u'test2',
+                  3: u'train',
+                  4: u'car',
+                  5: u'bus',
+                  6: u'person',
+                  7: u'traffic light',
+                  8: u'building',
+                  9: u'test',
+                  10: u'motorbike'
                   }
 
 
@@ -871,11 +876,8 @@ def main(args):
         dataset_val.load_aerial()
         dataset_val.prepare()
 
-        print(dataset_val.image_ids)
-
-        image_id = np.random.choice(dataset_val.image_ids, 1)
+        image_id = np.random.choice(dataset_val.image_ids, 1)[0]
         # image_ids = dataset_val.image_ids
-        print(f'Image ID: {image_id}')
         # Load image and ground truth data
         image, image_meta, gt_class_id, gt_bbox, gt_mask = \
             modellib.load_image_gt(dataset_val, config,
