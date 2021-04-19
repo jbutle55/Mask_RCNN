@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import json
 import skimage
-import imgaug
+# import imgaug
 import random
 import math
 from tensorflow.keras.models import Model
@@ -19,7 +19,7 @@ from mrcnn.config import Config
 from mrcnn import model as modellib, utils
 from mrcnn import visualize
 
-from samples.coco.coco import CocoDataset
+# from samples.coco.coco import CocoDataset
 
 # Path to trained weights file
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
@@ -704,8 +704,6 @@ class AerialDataset(utils.Dataset):
         for img in annotations[0]:
             id = img['id']
             image_info[id] = {'width': img['width'], 'height': img['height'], 'filepath': img['file_name']}
-            #print(image_info[id])
-        print(image_info)
 
         # The VIA tool saves images in the JSON even if they don't have any
         # annotations. Skip unannotated images.
@@ -713,12 +711,9 @@ class AerialDataset(utils.Dataset):
 
         # Add images
         for a in annotations:
-
             print(f'Annotation: {a}')
 
             id = a['image_id']
-            category = a['category_id']
-
             bbox = a['segmentation']
 
             width = image_info[id]['width']
@@ -727,10 +722,10 @@ class AerialDataset(utils.Dataset):
             file_path = image_info[id]['filepath']
 
             filepath = os.path.join(image_dir, file_path)
-            print(filepath)
             polygons = bbox
 
-            print(f'ID: {id}, PATH: {filepath}, WIDTH: {width}, HEIGHT: {height}')
+            # print(f'ID: {id}, PATH: {filepath}, WIDTH: {width}, HEIGHT: {height}')
+            print(id)
 
             # Get the x, y coordinaets of points of the polygons that make up
             # the outline of each object instance. These are stores in the
@@ -916,7 +911,8 @@ def main(args):
 
             # Image Augmentation
             # Right/Left flip 50% of the time
-            augmentation = imgaug.augmenters.Fliplr(0.5)
+            # TODO re-enable augmentation
+            # augmentation = imgaug.augmenters.Fliplr(0.5)
 
             # *** This training schedule is an example. Update to your needs ***
 
