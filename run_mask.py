@@ -725,7 +725,7 @@ class AerialDataset(utils.Dataset):
             polygons = bbox
 
             # print(f'ID: {id}, PATH: {filepath}, WIDTH: {width}, HEIGHT: {height}')
-            print(id)
+            # print(id)
 
             # Get the x, y coordinaets of points of the polygons that make up
             # the outline of each object instance. These are stores in the
@@ -870,6 +870,8 @@ def main(args):
         dataset_val = AerialDataset()
         dataset_val.load_aerial()
         dataset_val.prepare()
+
+        print(dataset_val.image_ids)
 
         image_id = np.random.choice(dataset_val.image_ids, 1)
         # image_ids = dataset_val.image_ids
