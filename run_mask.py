@@ -815,6 +815,8 @@ def main(args):
         config = WESCAMConfig()
     elif config_arg == 'stanford':
         config = StanfordConfig()
+    elif config_arg == 'aerial':
+        config = AerialConfig()
     config.display()
 
     if args.roi_layer:
