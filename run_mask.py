@@ -724,7 +724,7 @@ class AerialDataset(utils.Dataset):
             width = image_info[id]['width']
             height = image_info[id]['height']
 
-            file_path = image_info[id]['file_name']
+            file_path = image_info[id]['filepath']
 
             filepath = os.path.join(image_dir, file_path)
             print(filepath)
