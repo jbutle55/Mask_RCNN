@@ -904,7 +904,7 @@ def main(args):
         # TODO re-enable augmentation
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
-        if config == 'coco':
+        if config_arg == 'coco':
             # Training dataset. Use the training set and 35K from the
             # validation set, as as in the Mask RCNN paper.
             dataset_train = CocoDataset()
@@ -918,7 +918,7 @@ def main(args):
             dataset_val.load_coco(dataset, val_type, year=year, auto_download=download)
             dataset_val.prepare()
 
-        elif config == 'aerial':
+        elif config_arg == 'aerial':
             print('Creating Aerial Datasets')
             dataset_train = AerialDataset()
             dataset_train.load_aerial()
@@ -1372,7 +1372,7 @@ if __name__ == '__main__':
     parser.add_argument('--logs', default='')
     parser.add_argument('--video', default='')
     parser.add_argument('--output', default='output')
-    parser.add_argument('--config', default='coco')
+    parser.add_argument('--config', default='coco', choices=['coco', 'aerial', 'wescam', 'shapes'])
     parser.add_argument('--weights', default='mask_rcnn_coco.h5')
     parser.add_argument('--roi_layer', action='store_true', default=False)
     parser.add_argument('--detection_layer', action='store_true', default=False)
