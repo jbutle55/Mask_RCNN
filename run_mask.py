@@ -692,9 +692,6 @@ class AerialDataset(utils.Dataset):
         image_dir = '/home/justin/Data/aerial-cars-private'
 
         annotations = json.load(open(dataset_dir))
-
-        print(annotations)
-
         annotations = list(annotations.values())  # don't need the dict keys
 
         print(f'Second Annotaions')
