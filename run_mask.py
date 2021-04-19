@@ -704,7 +704,8 @@ class AerialDataset(utils.Dataset):
         for img in annotations[0]:
             id = img['id']
             image_info[id] = {'width': img['width'], 'height': img['height'], 'filepath': img['file_name']}
-            print(image_info[id])
+            #print(image_info[id])
+        print(image_info)
 
         # The VIA tool saves images in the JSON even if they don't have any
         # annotations. Skip unannotated images.
