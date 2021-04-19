@@ -694,8 +694,10 @@ class AerialDataset(utils.Dataset):
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
 
-        print(f'Second Annotaions')
-        print(annotations)
+        print(f'TEST 1: {annotations[0]}')
+
+        test = annotations['file_name']
+        print(f'TEST 2: {test}')
 
         image_base = annotations[1][0]['file_name'][:-5]
 
