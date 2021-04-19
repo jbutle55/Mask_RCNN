@@ -691,10 +691,10 @@ class AerialDataset(utils.Dataset):
         self.add_class("aerial", 10, "motorbike")
 
         dataset_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train/annotations.json'
-        dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/annotations.json'
+        # dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/annotations.json'
 
-        image_dir = '/home/justin/Data/aerial-cars-private'
-        image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
+        image_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train'
+        # image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
 
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
