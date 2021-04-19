@@ -696,13 +696,8 @@ class AerialDataset(utils.Dataset):
 
         # Need to pass image filename, path, and boxes
 
-        print(f'TEST 1: {annotations[0]}')
-
         test = annotations[2]
-        print(f'TEST 2: {test}')
-
-        image_base = annotations[1][0]['file_name'][:-5]
-        file_name = annotations
+        # print(f'TEST 2: {test}')
 
         image_info = {}
 
@@ -718,6 +713,8 @@ class AerialDataset(utils.Dataset):
         # Add images
         for a in annotations:
 
+            print(f'Annotation: {a}')
+
             id = a['image_id']
             category = a['category_id']
 
@@ -731,6 +728,8 @@ class AerialDataset(utils.Dataset):
             filepath = os.path.join(image_dir, file_path)
             print(filepath)
             polygons = bbox
+
+            print(f'ID: {id}, PATH: {filepath}, WIDTH: {width}, HEIGHT: {height}')
 
             # Get the x, y coordinaets of points of the polygons that make up
             # the outline of each object instance. These are stores in the
