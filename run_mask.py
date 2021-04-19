@@ -761,6 +761,9 @@ class AerialDataset(utils.Dataset):
             while len(copy) > 0:
                 y_points.append(copy.pop())
                 x_points.append(copy.pop())
+
+            if len(x_points) == 0:
+                continue
             # Get indexes of pixels inside the polygon and set them to 1
             rr, cc = skimage.draw.polygon(y_points, x_points)
             mask[rr, cc, i] = 1
