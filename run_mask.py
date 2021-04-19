@@ -696,7 +696,7 @@ class AerialDataset(utils.Dataset):
 
         print(f'TEST 1: {annotations[0]}')
 
-        test = annotations[1]
+        test = annotations[2]
         print(f'TEST 2: {test}')
 
         image_base = annotations[1][0]['file_name'][:-5]
