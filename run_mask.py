@@ -919,6 +919,7 @@ def main(args):
             dataset_val.prepare()
 
         elif config == 'aerial':
+            print('Creating Aerial Datasets')
             dataset_train = AerialDataset()
             dataset_train.load_aerial()
             dataset_train.prepare()
@@ -927,6 +928,10 @@ def main(args):
             dataset_val = AerialDataset()
             dataset_val.load_aerial()
             dataset_val.prepare()
+
+        else:
+            print('NO DATSET CONFIGURED')
+            return -1
 
         # Training - Stage 1
         print("Training network heads")
