@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import json
 import skimage
-# import imgaug
+import imgaug
 import random
 import math
 from tensorflow.keras.models import Model
@@ -691,10 +691,10 @@ class AerialDataset(utils.Dataset):
         self.add_class("aerial", 10, "motorbike")
 
         dataset_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train/annotations.json'
-        # dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/annotations.json'
+        dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/annotations.json'
 
         image_dir = '/home/justin/Data/aerial-cars-private'
-        # image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
+        image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
 
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
@@ -899,6 +899,11 @@ def main(args):
 
     # Train or evaluate
     if command == "train":
+        # Image Augmentation
+        # Right/Left flip 50% of the time
+        # TODO re-enable augmentation
+        augmentation = imgaug.augmenters.Fliplr(0.5)
+
         if config == 'coco':
             # Training dataset. Use the training set and 35K from the
             # validation set, as as in the Mask RCNN paper.
@@ -913,12 +918,15 @@ def main(args):
             dataset_val.load_coco(dataset, val_type, year=year, auto_download=download)
             dataset_val.prepare()
 
-            # Image Augmentation
-            # Right/Left flip 50% of the time
-            # TODO re-enable augmentation
-            # augmentation = imgaug.augmenters.Fliplr(0.5)
+        elif config == 'aerial':
+            dataset_train = AerialDataset()
+            dataset_train.load_aerial()
+            dataset_train.prepare()
 
-            # *** This training schedule is an example. Update to your needs ***
+            # Validation dataset
+            dataset_val = AerialDataset()
+            dataset_val.load_aerial()
+            dataset_val.prepare()
 
         # Training - Stage 1
         print("Training network heads")
