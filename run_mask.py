@@ -692,9 +692,13 @@ class AerialDataset(utils.Dataset):
         image_dir = '/home/justin/Data/aerial-cars-private'
 
         annotations = json.load(open(dataset_dir))
+
+        print(annotations)
+
         annotations = list(annotations.values())  # don't need the dict keys
 
-        print(annotations[1][0])
+        print(f'Second Annotaions')
+        print(annotations)
 
         image_base = annotations[1][0]['file_name'][:-5]
 
@@ -852,6 +856,7 @@ def main(args):
     model.keras_model.summary()
 
     if args.command == 'visual':
+        print(f'Visualizing Single Image...')
         # Recreate the model in inference mode
         model = modellib.MaskRCNN(mode="inference",
                                   config=config,
