@@ -677,6 +677,124 @@ class StanfordConfig(Config):
                   }
 
 
+class AerialDataset(utils.Dataset):
+    def load_aerial(self):
+        self.add_class("aerial", 1, "car")
+        self.add_class("aerial", 2, "person")
+        self.add_class("aerial", 3, "bus")
+        self.add_class("aerial", 4, "truck")
+        self.add_class("aerial", 5, "train")
+        self.add_class("aerial", 5, "bicycle")
+        self.add_class("aerial", 5, "building")
+
+        dataset_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train/annotations.json'
+
+        image_dir = '/home/justin/Data/aerial-cars-private'
+
+        annotations = json.load(open(dataset_dir))
+        annotations = list(annotations.values())  # don't need the dict keys
+
+        print(annotations[1][0])
+
+        image_base = annotations[1][0]['file_name'][:-5]
+
+        width = annotations[1][0]['width']
+        height = annotations[1][0]['height']
+
+        print(f'image base: {image_base}')
+
+        # The VIA tool saves images in the JSON even if they don't have any
+        # annotations. Skip unannotated images.
+        annotations = [a for a in annotations[2]]
+
+        # Add images
+        for a in annotations:
+
+            id = a['image_id']
+            category = a['category_id']
+
+            if category != 1:
+                # Only include 1 class
+                continue
+            bbox = a['bbox']
+
+            filepath = os.path.join(image_dir, f'{image_base}{id}.jpg')
+            # print(f'file path: {filepath}')
+            polygons = bbox
+
+
+            # Get the x, y coordinaets of points of the polygons that make up
+            # the outline of each object instance. These are stores in the
+            # shape_attributes (see json format above)
+            # The if condition is needed to support VIA versions 1.x and 2.x.
+            # if type(a['regions']) is dict:
+            #     polygons = [r['shape_attributes'] for r in a['regions'].values()]
+            # else:
+            #     polygons = [r['shape_attributes'] for r in a['regions']]
+
+            print(f'Image ID: {image_base}{id}')
+
+            self.add_image(
+                "aerial",
+                image_id=id,  # use file name as a unique image id
+                path=filepath,
+                width=width, height=height,
+                polygons=polygons)
+
+    def load_mask(self, image_id):
+        """Generate instance masks for an image.
+       Returns:
+        masks: A bool array of shape [height, width, instance count] with
+            one mask per instance.
+        class_ids: a 1D array of class IDs of the instance masks.
+        """
+        # If not a balloon dataset image, delegate to parent class.
+        image_info = self.image_info[image_id]
+        if image_info["source"] != "balloon":
+            return super(self.__class__, self).load_mask(image_id)
+
+        # Convert polygons to a bitmap mask of shape
+        # [height, width, instance_count]
+        info = self.image_info[image_id]
+        mask = np.zeros([info["height"], info["width"], len(info["polygons"])],
+                        dtype=np.uint8)
+        for i, p in enumerate(info["polygons"]):
+            # Get indexes of pixels inside the polygon and set them to 1
+            rr, cc = skimage.draw.polygon(p['all_points_y'], p['all_points_x'])
+            mask[rr, cc, i] = 1
+
+        # Return mask, and array of class IDs of each instance. Since we have
+        # one class ID only, we return an array of 1s
+        return mask.astype(np.bool), np.ones([mask.shape[-1]], dtype=np.int32)
+
+
+class AerialConfig(Config):
+    # Give the configuration a recognizable name
+    NAME = "aerial"
+
+    # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
+    # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1
+
+    # Number of classes (including background)
+    NUM_CLASSES = 1 + 7  # background + 5 classes
+
+    DETECTION_MIN_CONFIDENCE = 0.5
+
+    USE_MINI_MASK = False
+
+    CLASS_DICT = {0: u'__background__',
+                  1: u'car',
+                  2: u'person',
+                  3: u'bus',
+                  4: u'truck',
+                  5: u'train',
+                  6: u'bicycle',
+                  7: u'building'
+                  }
+
+
 def main(args):
     command = args.command
     weights = args.weights  # mask_rcnn_coco.h5'
@@ -730,6 +848,33 @@ def main(args):
     #model.load_weights(model_path, by_name=True)
 
     model.keras_model.summary()
+
+    if args.command == 'visual':
+        # Recreate the model in inference mode
+        model = modellib.MaskRCNN(mode="inference",
+                                  config=config,
+                                  model_dir=MODEL_DIR)
+
+        # Load trained weights
+        # model.load_weights(model_path, by_name=True)
+        model.load_weights(model_path, by_name=True, exclude=[
+            "mrcnn_class_logits", "mrcnn_bbox_fc",
+            "mrcnn_bbox", "mrcnn_mask"])
+
+        # Validation dataset
+        dataset_val = StanfordDataset()
+        dataset_val.load_stanford()
+        dataset_val.prepare()
+
+        image_id = np.random.choice(dataset_val.image_ids, 1)
+        # image_ids = dataset_val.image_ids
+        print(f'Image ID: {image_id}')
+        # Load image and ground truth data
+        image, image_meta, gt_class_id, gt_bbox, gt_mask = \
+            modellib.load_image_gt(dataset_val, config,
+                                   image_id)
+        molded_images = np.expand_dims(modellib.mold_image(image, config), 0)
+        visualize.display_instances(image, gt_bbox, gt_mask, gt_class_id, dataset_val.class_names, figsize=(8, 8))
 
     if args.roi_layer:
         layer_name = 'ROI'
@@ -1199,7 +1344,7 @@ def color_splash(image, mask):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--command', choices=['detect_vid', 'train', 'evaluate', 'roc'])
+    parser.add_argument('--command', choices=['detect_vid', 'train', 'evaluate', 'roc', 'visual'])
     parser.add_argument('--dataset', default='')
     parser.add_argument('--logs', default='')
     parser.add_argument('--video', default='')
