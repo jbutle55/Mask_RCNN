@@ -694,17 +694,22 @@ class AerialDataset(utils.Dataset):
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
 
+        # Need to pass image filename, path, and boxes
+
         print(f'TEST 1: {annotations[0]}')
 
         test = annotations[2]
         print(f'TEST 2: {test}')
 
         image_base = annotations[1][0]['file_name'][:-5]
+        file_name = annotations
 
-        width = annotations[1][0]['width']
-        height = annotations[1][0]['height']
+        image_info = {}
 
-        print(f'image base: {image_base}')
+        for img in annotations[0]:
+            id = img['id']
+            image_info[id] = {'width': img['width'], 'height': img['height'], 'filepath': img['file_name']}
+            print(image_info[id])
 
         # The VIA tool saves images in the JSON even if they don't have any
         # annotations. Skip unannotated images.
@@ -716,15 +721,16 @@ class AerialDataset(utils.Dataset):
             id = a['image_id']
             category = a['category_id']
 
-            if category != 1:
-                # Only include 1 class
-                continue
-            bbox = a['bbox']
+            bbox = a['segmentation']
 
-            filepath = os.path.join(image_dir, f'{image_base}{id}.jpg')
-            # print(f'file path: {filepath}')
+            width = image_info[id]['width']
+            height = image_info[id]['height']
+
+            file_path = image_info[id]['file_name']
+
+            filepath = os.path.join(image_dir, file_path)
+            print(filepath)
             polygons = bbox
-
 
             # Get the x, y coordinaets of points of the polygons that make up
             # the outline of each object instance. These are stores in the
@@ -734,8 +740,6 @@ class AerialDataset(utils.Dataset):
             #     polygons = [r['shape_attributes'] for r in a['regions'].values()]
             # else:
             #     polygons = [r['shape_attributes'] for r in a['regions']]
-
-            print(f'Image ID: {image_base}{id}')
 
             self.add_image(
                 "aerial",
