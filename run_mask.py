@@ -787,6 +787,9 @@ class AerialConfig(Config):
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
 
+    IMAGE_MIN_DIM = 800
+    IMAGE_MAX_DIM = 1024
+
     # Use a small epoch since the data is simple
     STEPS_PER_EPOCH = 400
 
@@ -797,6 +800,10 @@ class AerialConfig(Config):
     NUM_CLASSES = 1 + 10  # background + 5 classes
 
     DETECTION_MIN_CONFIDENCE = 0.5
+
+    # Length of square anchor side in pixels
+    # RPN_ANCHOR_SCALES = (32, 64, 128, 256, 512)
+    RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
 
     USE_MINI_MASK = False
 
@@ -946,12 +953,12 @@ def main(args):
             return -1
 
         # Training - Stage 1
-        # print("Training network heads")
-        # model.train(dataset_train, dataset_val,
-        #             learning_rate=config.LEARNING_RATE,
-        #             epochs=40,
-        #             layers='heads',
-        #             augmentation=augmentation)
+        print("Training network heads")
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE,
+                    epochs=10,
+                    layers='heads',
+                    augmentation=None)
 
         # Training - Stage 2
         # Finetune layers from ResNet stage 4 and up
@@ -969,7 +976,7 @@ def main(args):
                     learning_rate=config.LEARNING_RATE / 10,
                     epochs=10,
                     layers='all',
-                    augmentation=augmentation)
+                    augmentation=None)
 
     if command == 'detect_vid':
         vcapture = cv2.VideoCapture(args.video)
