@@ -9,6 +9,9 @@ import imgaug
 import random
 import math
 from tensorflow.keras.models import Model
+import warnings
+
+warnings.filterwarnings("ignore")
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
