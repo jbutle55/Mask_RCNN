@@ -785,7 +785,7 @@ class AerialConfig(Config):
     IMAGES_PER_GPU = 1
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 1000
+    STEPS_PER_EPOCH = 400
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 50
