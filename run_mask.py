@@ -927,14 +927,14 @@ def main(args):
             # Training dataset. Use the training set and 35K from the
             # validation set, as as in the Mask RCNN paper.
             dataset_train = CocoDataset()
-            dataset_train.load_coco(dataset, "train", year=year, auto_download=False)
-            dataset_train.load_coco(dataset, "valminusminival", year=DEFAULT_DATASET_YEAR, auto_download=False)
+            dataset_train.load_coco(dataset, "train", year='2017', auto_download=True)
+            #dataset_train.load_coco(dataset, "valminusminival", year=DEFAULT_DATASET_YEAR, auto_download=False)
             dataset_train.prepare()
 
             # Validation dataset
             dataset_val = CocoDataset()
-            val_type = "val" if year in '2017' else "minival"
-            dataset_val.load_coco(dataset, val_type, year=year, auto_download=download)
+            val_type = "val"
+            dataset_val.load_coco(dataset, val_type, year='2017', auto_download=True)
             dataset_val.prepare()
 
         elif config_arg == 'aerial':
