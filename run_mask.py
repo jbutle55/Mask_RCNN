@@ -10,6 +10,8 @@ import random
 import math
 from tensorflow.keras.models import Model
 import warnings
+import urllib
+import shutil
 
 warnings.filterwarnings("ignore")
 
@@ -21,8 +23,7 @@ sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn.config import Config
 from mrcnn import model as modellib, utils
 from mrcnn import visualize
-
-# from samples.coco.coco import CocoDataset
+from samples.coco.coco import CocoDataset
 
 # Path to trained weights file
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
@@ -340,7 +341,7 @@ class CocoConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 1 + 80  # COCO has 80 classes
 
-
+'''
 class CocoDataset(utils.Dataset):
     def load_coco(self, dataset_dir, subset, year=DEFAULT_DATASET_YEAR, class_ids=None,
                   class_map=None, return_coco=False, auto_download=False):
@@ -554,7 +555,7 @@ class CocoDataset(utils.Dataset):
         rle = self.annToRLE(ann, height, width)
         m = maskUtils.decode(rle)
         return m
-
+'''
 
 class StanfordDataset(utils.Dataset):
     def load_stanford(self):
