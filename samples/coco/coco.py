@@ -164,7 +164,10 @@ class CocoDataset(utils.Dataset):
             imgDir = "{}/{}{}".format(dataDir, dataType, dataYear)
             imgZipFile = "{}/{}{}.zip".format(dataDir, dataType, dataYear)
             imgURL = "http://images.cocodataset.org/zips/{}{}.zip".format(dataType, dataYear)
-        # print("Image paths:"); print(imgDir); print(imgZipFile); print(imgURL)
+        print("Image paths:")
+        print(imgDir)
+        print(imgZipFile)
+        print(imgURL)
 
         # Create main folder if it doesn't exist yet
         if not os.path.exists(dataDir):
