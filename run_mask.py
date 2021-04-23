@@ -806,18 +806,20 @@ class AerialConfig(Config):
     # RPN_ANCHOR_SCALES = (32, 64, 128, 256, 512)
     RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
 
+    # Non-max suppression threshold to filter RPN proposals.
+    # You can increase this during training to generate more propsals.
+    RPN_NMS_THRESHOLD = 0.7
+
     USE_MINI_MASK = False
 
     CLASS_DICT = {0: u'__background__',
-                  1: u'truck',
-                  2: u'test2',
-                  3: u'train',
+                  9: u'truck',
+                  11: u'train',
                   4: u'car',
                   5: u'bus',
                   6: u'person',
                   7: u'traffic light',
                   8: u'building',
-                  9: u'test',
                   10: u'motorbike'
                   }
 
@@ -922,7 +924,7 @@ def main(args):
         # Image Augmentation
         # Right/Left flip 50% of the time
         # TODO re-enable augmentation
-        augmentation = imgaug.augmenters.Fliplr(0.5)
+        # augmentation = imgaug.augmenters.Fliplr(0.5)
 
         if config_arg == 'coco':
             # Training dataset. Use the training set and 35K from the
@@ -957,7 +959,7 @@ def main(args):
         print("Training network heads")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=10,
+                    epochs=args.epochs / 2,
                     layers='heads',
                     augmentation=None)
 
@@ -975,7 +977,7 @@ def main(args):
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=10,
+                    epochs=args.epochs / 2,
                     layers='all',
                     augmentation=None)
 
@@ -1393,6 +1395,7 @@ if __name__ == '__main__':
     parser.add_argument('--weights', default='mask_rcnn_coco.h5')
     parser.add_argument('--roi_layer', action='store_true', default=False)
     parser.add_argument('--detection_layer', action='store_true', default=False)
+    parser.add_argument('--epochs', default=1, type=int)
     arguments = parser.parse_args()
     main(arguments)
 
