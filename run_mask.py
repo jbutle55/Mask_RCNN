@@ -827,7 +827,6 @@ class AerialConfig(Config):
 def main(args):
     command = args.command
     weights = args.weights  # mask_rcnn_coco.h5'
-    dataset = args.dataset
     logs = args.logs
     video = args.video
     output = args.output
@@ -980,6 +979,9 @@ def main(args):
                     epochs=args.epochs / 2,
                     layers='all',
                     augmentation=None)
+
+        print('Saving model...')
+        model.save(f'{args.saved_model}.h5')
 
     if command == 'detect_vid':
         vcapture = cv2.VideoCapture(args.video)
@@ -1396,6 +1398,7 @@ if __name__ == '__main__':
     parser.add_argument('--roi_layer', action='store_true', default=False)
     parser.add_argument('--detection_layer', action='store_true', default=False)
     parser.add_argument('--epochs', default=1, type=int)
+    parser.add_argument('--saved_model', default='mask_saved_model.h5')
     arguments = parser.parse_args()
     main(arguments)
 
