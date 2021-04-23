@@ -956,9 +956,10 @@ def main(args):
 
         # Training - Stage 1
         print("Training network heads")
+        print(f'Number epochs: {args.epochs / 2}')
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=args.epochs / 2,
+                    epochs=int(args.epochs / 2),
                     layers='heads',
                     augmentation=None)
 
@@ -976,7 +977,7 @@ def main(args):
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=args.epochs / 2,
+                    epochs=int(args.epochs / 2),
                     layers='all',
                     augmentation=None)
 
