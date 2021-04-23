@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import json
 import skimage
-import imgaug
+# import imgaug
 import random
 import math
 from tensorflow.keras.models import Model
@@ -683,22 +683,20 @@ class StanfordConfig(Config):
 
 class AerialDataset(utils.Dataset):
     def load_aerial(self):
-        self.add_class("aerial", 1, "truck")
-        self.add_class("aerial", 2, "test2")
-        self.add_class("aerial", 3, "train")
-        self.add_class("aerial", 4, "car")
-        self.add_class("aerial", 5, "bus")
-        self.add_class("aerial", 6, "person")
-        self.add_class("aerial", 7, "traffic light")
-        self.add_class("aerial", 8, "building")
-        self.add_class("aerial", 9, "test")
-        self.add_class("aerial", 10, "motorbike")
+        self.add_class("aerial", 1, "car")
+        self.add_class("aerial", 2, "bus")
+        self.add_class("aerial", 3, "person")
+        self.add_class("aerial", 4, "traffic light")
+        self.add_class("aerial", 5, "motorbike")
+        self.add_class("aerial", 6, "building")
+        self.add_class("aerial", 7, "truck")
+        self.add_class("aerial", 8, "train")
 
-        dataset_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train/annotations.json'
-        # dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/annotations.json'
+        dataset_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train/fixed_annotations2.json'
+        #dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/fixed_annotations2.json'
 
         image_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train'
-        # image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
+        #image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
 
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
@@ -792,13 +790,13 @@ class AerialConfig(Config):
     IMAGE_MAX_DIM = 1024
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 400
+    STEPS_PER_EPOCH = 200
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 50
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 10  # background + 5 classes
+    NUM_CLASSES = 1 + 11  # background + 5 classes
 
     DETECTION_MIN_CONFIDENCE = 0.5
 
@@ -813,14 +811,14 @@ class AerialConfig(Config):
     USE_MINI_MASK = False
 
     CLASS_DICT = {0: u'__background__',
-                  9: u'truck',
-                  11: u'train',
-                  4: u'car',
-                  5: u'bus',
-                  6: u'person',
-                  7: u'traffic light',
-                  8: u'building',
-                  10: u'motorbike'
+                  7: u'truck',
+                  8: u'train',
+                  1: u'car',
+                  2: u'bus',
+                  3: u'person',
+                  4: u'traffic light',
+                  5: u'motorbike',
+                  6: u'building'
                   }
 
 
