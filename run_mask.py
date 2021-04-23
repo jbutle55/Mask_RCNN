@@ -796,7 +796,7 @@ class AerialConfig(Config):
     VALIDATION_STEPS = 50
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 11  # background + 5 classes
+    NUM_CLASSES = 1 + 8  # background + 5 classes
 
     DETECTION_MIN_CONFIDENCE = 0.5
 
