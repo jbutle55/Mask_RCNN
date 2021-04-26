@@ -851,7 +851,7 @@ def main(args):
     # Create model
     if command == "train":
         model = modellib.MaskRCNN(mode="training", config=config,
-                                  model_dir=logs)
+                                  model_dir=MODEL_DIR)
     else:
         model = modellib.MaskRCNN(mode="inference", config=config,
                                   model_dir=logs)
