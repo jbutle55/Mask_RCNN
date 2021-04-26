@@ -980,7 +980,7 @@ def main(args):
                     augmentation=None)
 
         print('Saving model...')
-        model.save(f'{args.saved_model}.h5')
+        model.keras_model.save(f'{args.saved_model}.h5')
 
     if command == 'detect_vid':
         vcapture = cv2.VideoCapture(args.video)
