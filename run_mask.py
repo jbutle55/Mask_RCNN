@@ -33,7 +33,7 @@ COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 DEFAULT_DATASET_YEAR = "2014"
 
-MODEL_DIR = ''
+MODEL_DIR = 'checkpoints'
 
 
 class ShapesConfig(Config):
@@ -978,9 +978,6 @@ def main(args):
                     epochs=int(args.epochs / 2),
                     layers='all',
                     augmentation=None)
-
-        print('Saving model...')
-        model.keras_model.save(f'{args.saved_model}.h5')
 
     if command == 'detect_vid':
         vcapture = cv2.VideoCapture(args.video)
