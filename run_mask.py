@@ -693,10 +693,10 @@ class AerialDataset(utils.Dataset):
         self.add_class("aerial", 8, "train")
 
         dataset_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train/fixed_annotations2.json'
-        #dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/fixed_annotations2.json'
+        # dataset_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train/fixed_annotations2.json'
 
         image_dir = '/home/justin/Data/aerial-cars-private/aerial_yolo/train'
-        #image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
+        # image_dir = '/Users/justinbutler/Desktop/school/Calgary/ML_Work/Datasets/aerial-cars-private/aerial_yolo/train'
 
         annotations = json.load(open(dataset_dir))
         annotations = list(annotations.values())  # don't need the dict keys
@@ -738,6 +738,7 @@ class AerialDataset(utils.Dataset):
         }
         image_info.update(kwargs)
         self.image_info.append(image_info)
+        # self.image_ids.append(image_id)
 
     def load_mask(self, image_id):
         """Generate instance masks for an image.
@@ -790,7 +791,7 @@ class AerialConfig(Config):
     IMAGE_MAX_DIM = 1024
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 100
+    STEPS_PER_EPOCH = 150
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 50
@@ -798,7 +799,7 @@ class AerialConfig(Config):
     # Number of classes (including background)
     NUM_CLASSES = 1 + 8  # background + 5 classes
 
-    DETECTION_MIN_CONFIDENCE = 0.5
+    DETECTION_MIN_CONFIDENCE = 0.1
 
     # Length of square anchor side in pixels
     RPN_ANCHOR_SCALES = (32, 64, 128, 256, 512)
