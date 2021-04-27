@@ -791,7 +791,7 @@ class AerialConfig(Config):
     IMAGE_MAX_DIM = 1024
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 150
+    STEPS_PER_EPOCH = 100
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 50
@@ -800,6 +800,9 @@ class AerialConfig(Config):
     NUM_CLASSES = 1 + 8  # background + 5 classes
 
     DETECTION_MIN_CONFIDENCE = 0.1
+
+    # Increase from 100 just in case
+    MAX_GT_INSTANCES = 200
 
     # Length of square anchor side in pixels
     RPN_ANCHOR_SCALES = (32, 64, 128, 256, 512)
