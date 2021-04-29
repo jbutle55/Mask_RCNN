@@ -805,8 +805,8 @@ class AerialConfig(Config):
     MAX_GT_INSTANCES = 200
 
     # Length of square anchor side in pixels
-    RPN_ANCHOR_SCALES = (32, 64, 128, 256, 512)
-    #RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
+    # RPN_ANCHOR_SCALES = (32, 64, 128, 256, 512)
+    RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
 
     # Non-max suppression threshold to filter RPN proposals.
     # You can increase this during training to generate more propsals.
