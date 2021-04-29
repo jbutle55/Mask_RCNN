@@ -1793,6 +1793,7 @@ class DataGenerator(KU.Sequence):
                     batch_mrcnn_class_ids[b] = mrcnn_class_ids
                     batch_mrcnn_bbox[b] = mrcnn_bbox
                     batch_mrcnn_mask[b] = mrcnn_mask
+            print('increasing b...')
             b += 1
 
         inputs = [batch_images, batch_image_meta, batch_rpn_match, batch_rpn_bbox,
