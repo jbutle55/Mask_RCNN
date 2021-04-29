@@ -1712,13 +1712,14 @@ class DataGenerator(KU.Sequence):
             # Increment index to pick next image. Shuffle if at the start of an epoch.
             image_index = (image_index + 1) % len(self.image_ids)
 
-            print(f'Image Index: {image_index}')
+            #print(f'Image Index: {image_index}')
 
             if self.shuffle and image_index == 0:
                 np.random.shuffle(self.image_ids)
 
             # Get GT bounding boxes and masks for image.
             image_id = self.image_ids[image_index]
+            print(f'Image ID: {image_id}')
             image, image_meta, gt_class_ids, gt_boxes, gt_masks = \
                 load_image_gt(self.dataset, self.config, image_id,
                               augmentation=self.augmentation)
