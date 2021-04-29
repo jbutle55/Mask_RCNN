@@ -1728,6 +1728,7 @@ class DataGenerator(KU.Sequence):
             # have any of the classes we care about.
             if not np.any(gt_class_ids > 0):
                 print('Skipping...')
+                print(gt_class_ids)
                 continue
 
             # RPN Targets
