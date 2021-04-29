@@ -1704,9 +1704,11 @@ class DataGenerator(KU.Sequence):
         return int(np.ceil(len(self.image_ids) / float(self.batch_size)))
 
     def __getitem__(self, idx):
+        print(f'batch size {self.batch_size}')
         b = 0
         image_index = -1
         while b < self.batch_size:
+            print(f'b: {b}')
             # Increment index to pick next image. Shuffle if at the start of an epoch.
             image_index = (image_index + 1) % len(self.image_ids)
 

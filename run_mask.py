@@ -23,7 +23,7 @@ sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn.config import Config
 from mrcnn import model as modellib, utils
 from mrcnn import visualize
-from samples.coco.coco import CocoDataset
+# from samples.coco.coco import CocoDataset
 
 # Path to trained weights file
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
@@ -1077,6 +1077,21 @@ def main(args):
         else:
             print('NO DATSET CONFIGURED')
             return -1
+
+        # print('TESTING')
+        # # Create data generator
+        # random_rois = 200
+        # g = modellib.DataGenerator(
+        #     dataset_train, config, shuffle=True, random_rois=random_rois,
+        #     detection_targets=True)
+        # # Uncomment to run the generator through a lot of images
+        # # to catch rare errors
+        # for i in range(1000):
+        #     print(i)
+        #     _, _ = next(g)
+#
+        # print('Done Testing')
+
 
         # Training - Stage 1
         # print("Training network heads")
